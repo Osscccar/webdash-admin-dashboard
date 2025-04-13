@@ -1,7 +1,43 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
+  reactStrictMode: true,
+  poweredByHeader: false,
+  env: {
+    NEXT_PUBLIC_ADMIN_USERNAME: process.env.ADMIN_USERNAME,
+    NEXT_PUBLIC_ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+  },
+  productionBrowserSourceMaps: false,
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'same-origin',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
