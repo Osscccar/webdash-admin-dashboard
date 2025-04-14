@@ -18,6 +18,8 @@ export interface UserData {
     planType?: string;
     billingCycle?: string;
     projectPhases?: ProjectPhase[];
+    questionnaireAnswers?: QuestionnaireAnswers;
+
     // Add any other fields your users might have
   }
 
