@@ -404,7 +404,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
             </div>
           ))}
-          // Add this after the Project Phases Management section in client-detail.tsx
+
 
 {/* Questionnaire Answers */}
 <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
