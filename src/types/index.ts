@@ -32,4 +32,50 @@ export interface UserData {
     }[];
   }
 
+  export interface QuestionnaireAnswers {
+    [key: string]: string | string[] | WebsiteEntry[] | FileUpload | FileUpload[] | null | undefined;
+    
+    // Business Information
+    businessName?: string;
+    businessTagline?: string;
+    businessDescription?: string;
+    businessGoals?: string;
+    businessUnique?: string;
+    servicesProducts?: string;
+    competitors?: WebsiteEntry[];
+    targetAudience?: string;
+    businessProblemSolving?: string;
+    
+    // Current Website
+    hasCurrentWebsite?: string;
+    currentWebsiteUrl?: string;
+    websiteLikes?: string;
+    websiteDislikes?: string;
+    currentCms?: string;
+    
+    // Project Goals
+    primaryWebsiteGoal?: string;
+    desiredVisitorActions?: string[];
+    
+    // Website Structure
+    websitePages?: string[];
+    ecommerceNeeded?: string;
+    blogNeeded?: string;
+    
+    // Design Preferences
+    colorPreferences?: string[];
+    websiteStyle?: string[];
+    
+    // Content & Media
+    logoUpload?: FileUpload;
+    teamPhotos?: FileUpload[];
+    contentReady?: string;
+    
+    // Technical & Admin
+    domainName?: string;
+    
+    // SEO & Marketing
+    seoKeywords?: WebsiteEntry[];
+  }
+
   
