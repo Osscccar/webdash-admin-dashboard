@@ -306,7 +306,6 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
       {/* Project Phases Management */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
         <h2 className="text-xl font-bold text-white mb-4">Project Phases</h2>
-        
         <div className="space-y-6">
           {projectPhases.map((phase, phaseIndex) => (
             <div key={phaseIndex} className="border border-gray-700 rounded-lg p-4">
@@ -405,8 +404,264 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
             </div>
           ))}
+          // Add this after the Project Phases Management section in client-detail.tsx
+
+{/* Questionnaire Answers */}
+<div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+  <h2 className="text-xl font-bold text-white mb-4">Questionnaire Answers</h2>
+  
+  {userData?.questionnaireAnswers ? (
+    <div className="space-y-6">
+      {/* Business Information */}
+      <div className="border-t border-gray-700 pt-4">
+        <h3 className="text-md font-medium text-gray-300 mb-3">Business Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Business Name</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.businessName || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Business Tagline</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.businessTagline || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Business Description</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.businessDescription || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Business Goals</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.businessGoals || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Unique Selling Proposition</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.businessUnique || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Services & Products</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.servicesProducts || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Target Audience</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.targetAudience || "Not provided"}</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Design Information */}
+      <div className="border-t border-gray-700 pt-4">
+        <h3 className="text-md font-medium text-gray-300 mb-3">Design Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Website Style</p>
+            <p className="text-sm text-gray-200">
+              {userData.questionnaireAnswers.websiteStyle ? 
+                (Array.isArray(userData.questionnaireAnswers.websiteStyle) ? 
+                  userData.questionnaireAnswers.websiteStyle.join(', ') : 
+                  userData.questionnaireAnswers.websiteStyle) : 
+                "Not provided"}
+            </p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Color Preferences</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {userData.questionnaireAnswers.colorPreferences && 
+              Array.isArray(userData.questionnaireAnswers.colorPreferences) ? 
+                userData.questionnaireAnswers.colorPreferences.map((color, index) => (
+                  <div key={index} className="flex items-center">
+                    <div 
+                      className="w-4 h-4 rounded-full mr-1" 
+                      style={{ backgroundColor: color }}
+                    ></div>
+                    <span className="text-xs text-gray-300">{color}</span>
+                  </div>
+                )) : 
+                <span className="text-sm text-gray-400">No color preferences</span>
+              }
+            </div>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Font Preferences</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.fontPreferences || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Content Readiness</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.contentReady || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Website Pages</p>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {userData.questionnaireAnswers.websitePages && 
+              Array.isArray(userData.questionnaireAnswers.websitePages) ? 
+                userData.questionnaireAnswers.websitePages.map((page, index) => (
+                  <span key={index} className="px-2 py-1 bg-gray-600 text-xs text-gray-200 rounded-md">
+                    {page}
+                  </span>
+                )) : 
+                <span className="text-sm text-gray-400">No pages specified</span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Competitors */}
+      <div className="border-t border-gray-700 pt-4">
+        <h3 className="text-md font-medium text-gray-300 mb-3">Competitors</h3>
+        {userData.questionnaireAnswers.competitors && 
+        Array.isArray(userData.questionnaireAnswers.competitors) && 
+        userData.questionnaireAnswers.competitors.length > 0 ? (
+          <div className="space-y-2">
+            {userData.questionnaireAnswers.competitors.map((competitor, index) => (
+              <div key={index} className="bg-gray-700/30 p-3 rounded-md flex items-center">
+                <div className="mr-3 w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center">
+                  <Globe className="h-3 w-3 text-gray-300" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-200">{competitor.name}</p>
+                  {competitor.url && (
+                    <a 
+                      href={/^https?:\/\//.test(competitor.url) ? competitor.url : `https://${competitor.url}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-orange-400 hover:underline"
+                    >
+                      {competitor.url}
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-sm text-gray-400">No competitors listed</p>
+          </div>
+        )}
+      </div>
+      
+      {/* Assets */}
+      <div className="border-t border-gray-700 pt-4">
+        <h3 className="text-md font-medium text-gray-300 mb-3">Uploaded Assets</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Logo */}
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-2">Logo</p>
+            {userData.questionnaireAnswers.logoUpload ? (
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-gray-600 rounded-md flex items-center justify-center overflow-hidden mr-3">
+                  <img 
+                    src={userData.questionnaireAnswers.logoUpload.url} 
+                    alt="Logo" 
+                    className="max-w-full max-h-full object-contain" 
+                  />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-200">{userData.questionnaireAnswers.logoUpload.name}</p>
+                  <p className="text-xs text-gray-400">
+                    {(userData.questionnaireAnswers.logoUpload.size / 1024).toFixed(1)} KB
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">No logo uploaded</p>
+            )}
+          </div>
+          
+          {/* Team Photos */}
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-2">Team Photos</p>
+            {userData.questionnaireAnswers.teamPhotos && 
+             Array.isArray(userData.questionnaireAnswers.teamPhotos) && 
+             userData.questionnaireAnswers.teamPhotos.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2">
+                {userData.questionnaireAnswers.teamPhotos.slice(0, 6).map((photo, index) => (
+                  <div key={index} className="aspect-square bg-gray-600 rounded-md flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={photo.url} 
+                      alt={`Team photo ${index + 1}`} 
+                      className="min-h-full min-w-full object-cover" 
+                    />
+                  </div>
+                ))}
+                {userData.questionnaireAnswers.teamPhotos.length > 6 && (
+                  <div className="aspect-square bg-gray-600 rounded-md flex items-center justify-center">
+                    <span className="text-sm text-gray-300">+{userData.questionnaireAnswers.teamPhotos.length - 6} more</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">No team photos uploaded</p>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Additional Information */}
+      <div className="border-t border-gray-700 pt-4">
+        <h3 className="text-md font-medium text-gray-300 mb-3">Technical Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Current Website</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.hasCurrentWebsite || "Not specified"}</p>
+          </div>
+          {userData.questionnaireAnswers.hasCurrentWebsite === "Yes" && (
+            <>
+              <div className="bg-gray-700/30 p-3 rounded-md">
+                <p className="text-xs text-gray-400 mb-1">Current Website URL</p>
+                {userData.questionnaireAnswers.currentWebsiteUrl ? (
+                  <a 
+                    href={/^https?:\/\//.test(userData.questionnaireAnswers.currentWebsiteUrl as string) 
+                      ? userData.questionnaireAnswers.currentWebsiteUrl as string 
+                      : `https://${userData.questionnaireAnswers.currentWebsiteUrl}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-orange-400 hover:underline"
+                  >
+                    {userData.questionnaireAnswers.currentWebsiteUrl}
+                  </a>
+                ) : (
+                  <p className="text-sm text-gray-400">Not provided</p>
+                )}
+              </div>
+              <div className="bg-gray-700/30 p-3 rounded-md">
+                <p className="text-xs text-gray-400 mb-1">Current CMS/Platform</p>
+                <p className="text-sm text-gray-200">{userData.questionnaireAnswers.currentCms || "Not specified"}</p>
+              </div>
+              <div className="bg-gray-700/30 p-3 rounded-md">
+                <p className="text-xs text-gray-400 mb-1">Current Website Likes</p>
+                <p className="text-sm text-gray-200">{userData.questionnaireAnswers.websiteLikes || "Not specified"}</p>
+              </div>
+              <div className="bg-gray-700/30 p-3 rounded-md">
+                <p className="text-xs text-gray-400 mb-1">Current Website Dislikes</p>
+                <p className="text-sm text-gray-200">{userData.questionnaireAnswers.websiteDislikes || "Not specified"}</p>
+              </div>
+            </>
+          )}
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Domain Name</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.domainName || "Not provided"}</p>
+          </div>
+          <div className="bg-gray-700/30 p-3 rounded-md">
+            <p className="text-xs text-gray-400 mb-1">Domain Provider</p>
+            <p className="text-sm text-gray-200">{userData.questionnaireAnswers.domainProvider || "Not provided"}</p>
+          </div>
         </div>
       </div>
     </div>
+  ) : (
+    <div className="bg-gray-700/30 p-4 rounded-lg text-center">
+      <p className="text-gray-400">No questionnaire answers available</p>
+    </div>
+  )}
+</div>
+        </div>
+        
+
+        
+
+      </div>
+      
+    </div>
+    
   );
 }
