@@ -32,6 +32,19 @@ export interface UserData {
     }[];
   }
 
+  export interface FileUpload {
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }
+  
+  // For website list entries
+  export interface WebsiteEntry {
+    name: string;
+    url: string;
+  }
+
   export interface QuestionnaireAnswers {
     [key: string]: string | string[] | WebsiteEntry[] | FileUpload | FileUpload[] | null | undefined;
     
