@@ -1,7 +1,15 @@
 // src/app/dashboard/client/[id]/page.tsx
 import ClientDetail from '@/components/client-detail';
 
-// Correctly type the params object according to Next.js expectations
-export default function ClientPage({ params }: { params: { id: string } }) {
-  return <ClientDetail params={params} />;
-}
+interface PageParams {
+    id: string;
+  }
+  
+  export default function ClientPage({ params }: { params: PageParams }) {
+    return (
+      <div>
+        {/* Import and use your client detail component */}
+        <ClientDetail id={params.id} />
+      </div>
+    );
+  }

@@ -56,9 +56,10 @@ const DEFAULT_PROJECT_PHASES: ProjectPhase[] = [
   }
 ];
 
-export default function ClientDetail({ params }: { params: { id: string } }) {
+export default function ClientDetail({ id }: { id: string }) {
 
-  const router = useRouter();
+    const router = useRouter();
+
   const { id } = params;
   
   const [userData, setUserData] = useState<UserData | null>(null);
