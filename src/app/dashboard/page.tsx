@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { User, Mail, Calendar, Clock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { User, Mail, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { UserData } from '@/types';
 
 export default function Dashboard() {
+  const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,7 +26,6 @@ export default function Dashboard() {
         
         setUsers(usersData);
       } catch (err) {
-        // Use the error parameter
         console.error('Error fetching users:', err);
         setError('Failed to fetch user data');
       } finally {
@@ -41,9 +42,12 @@ export default function Dashboard() {
     try {
       return new Date(dateString).toLocaleDateString();
     } catch {
-      // Remove the unused 'error' parameter
       return 'Invalid date';
     }
+  };
+
+  const handleViewClientDetails = (userId: string) => {
+    router.push(`/dashboard/client/${userId}`);
   };
 
   if (loading) {
@@ -113,8 +117,12 @@ export default function Dashboard() {
             </div>
             
             <div className="bg-gray-700/50 px-6 py-3">
-              <button className="text-orange-500 hover:text-orange-400 text-sm font-medium">
-                View Details
+              <button 
+                onClick={() => handleViewClientDetails(user.id || '')}
+                className="flex items-center justify-between w-full text-orange-500 hover:text-orange-400 text-sm font-medium"
+              >
+                <span>View and Manage Client</span>
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>

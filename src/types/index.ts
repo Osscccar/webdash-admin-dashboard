@@ -1,4 +1,7 @@
 // src/types/index.ts
+
+
+
 export interface UserData {
     id?: string;
     email: string;
@@ -14,5 +17,17 @@ export interface UserData {
     updatedAt?: string;
     planType?: string;
     billingCycle?: string;
+    projectPhases?: ProjectPhase[];
     // Add any other fields your users might have
   }
+
+  export interface ProjectPhase {
+    name: string;
+    status: "completed" | "active" | "pending";
+    tasks: {
+      name: string;
+      completed: boolean;
+    }[];
+  }
+
+  
