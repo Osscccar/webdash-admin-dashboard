@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Calendar, Clock, ChevronRight } from 'lucide-react';
+import { User, Mail, Calendar, ChevronRight } from 'lucide-react';
 import { UserData } from '@/types';
 
 export default function Dashboard() {
