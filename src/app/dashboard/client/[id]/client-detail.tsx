@@ -132,7 +132,6 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch client data
   useEffect(() => {
@@ -463,7 +462,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   Project Phases
                 </CardTitle>
                 <CardDescription className="text-gray-400">
-                  Manage the client's project progress through different phases
+                  Manage the client&apos;s project progress through different
+                  phases
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -611,7 +611,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   Website Preview
                 </CardTitle>
                 <CardDescription className="text-gray-400">
-                  Manage the client's website preview image
+                  Manage the client&apos;s website preview image
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -625,6 +625,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       className="relative rounded-lg overflow-hidden"
                       style={{ maxHeight: "300px" }}
                     >
+                      {/* Using next/image would be better for performance, but keeping img to maintain functionality */}
                       <img
                         src={userData.websitePreviewUrl || "/placeholder.svg"}
                         alt="Website Preview"
@@ -783,7 +784,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   Questionnaire Answers
                 </CardTitle>
                 <CardDescription className="text-gray-400">
-                  View client's responses to the onboarding questionnaire
+                  View client&apos;s responses to the onboarding questionnaire
                 </CardDescription>
               </CardHeader>
               <CardContent>
