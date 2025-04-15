@@ -28,32 +28,32 @@ const DEFAULT_PROJECT_PHASES: ProjectPhase[] = [
     name: "Planning",
     status: "pending",
     tasks: [
-      { name: "Requirements", completed: false },
-      { name: "Project Setup", completed: false }
+      { name: "Complete our questionnaire", completed: true },
+      { name: "Reviewing your answers", completed: false }
     ]
   },
   {
     name: "Design",
     status: "pending",
     tasks: [
-      { name: "Mockups", completed: false },
-      { name: "Visual Design", completed: false }
+      { name: "Designing your website", completed: false },
+      { name: "Finalising your website", completed: false }
     ]
   },
   {
-    name: "Design Finalisation",
+    name: "Revisions",
     status: "pending",
     tasks: [
-      { name: "Perfect Design", completed: false },
-      { name: "Checking Revisions", completed: false }
+      { name: "Add your edits/revisions", completed: false },
+      { name: "Completing your revisions", completed: false }
     ]
   },
   {
     name: "Launch",
     status: "pending",
     tasks: [
-      { name: "Testing", completed: false },
-      { name: "Deployment", completed: false }
+      { name: "Adding your domain", completed: false },
+      { name: "Publishing your website", completed: false }
     ]
   }
 ];
