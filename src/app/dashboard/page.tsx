@@ -88,7 +88,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-white mb-6">Client Management</h2>
+      <h2 className="text-2xl font-bold text-white mb-6">Clients</h2>
 
       {/* Search + Filter */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
