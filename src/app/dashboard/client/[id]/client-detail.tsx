@@ -1,12 +1,11 @@
+// src/app/dashboard/client/[id]/client-detail.tsx
 "use client";
-
-import type React from "react";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { UserData, ProjectPhase, FileUpload, WebsiteEntry } from "@/types";
+import { UserData, ProjectPhase, FileUpload, WebsiteEntry } from "@/types";
 import {
   ArrowLeft,
   Save,
@@ -20,37 +19,8 @@ import {
   Palette,
   Rocket,
   Layers,
-  Phone,
-  CreditCard,
-  Activity,
-  ImageIcon,
-  Building,
-  Target,
-  PenTool,
-  ExternalLink,
-  Server,
-  Mail,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import Image from "next/image"; // Import Next.js Image component
 
 // Default project phases for new clients
 const DEFAULT_PROJECT_PHASES: ProjectPhase[] = [
@@ -98,7 +68,7 @@ const renderQuestionnaireField = (
     | FileUpload[]
     | null
     | undefined,
-  defaultValue = "Not provided"
+  defaultValue: string = "Not provided"
 ): React.ReactNode => {
   if (field === null || field === undefined) {
     return defaultValue;
@@ -269,8 +239,6 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
         return <Palette className="h-5 w-5" />;
       case "design finalisation":
         return <Palette className="h-5 w-5" />;
-      case "revisions":
-        return <PenTool className="h-5 w-5" />;
       case "launch":
         return <Rocket className="h-5 w-5" />;
       default:
@@ -281,913 +249,799 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
   if (!userData) {
     return (
-      <Alert
-        variant="destructive"
-        className="bg-red-950/30 border border-red-900"
-      >
-        <AlertDescription>Client not found</AlertDescription>
-      </Alert>
+      <div className="bg-red-900/30 border border-red-800 p-4 rounded-lg">
+        <p className="text-red-400">Client not found</p>
+      </div>
     );
   }
 
   return (
-    <div className="bg-black text-white min-h-screen p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header with back button */}
-        <div className="flex justify-between items-center">
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/dashboard")}
-            className="text-gray-300 hover:text-white hover:bg-gray-900"
-          >
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            <span>Back to Clients</span>
-          </Button>
+    <div className="space-y-6">
+      {/* Header with back button */}
+      <div className="flex justify-between items-center">
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="flex items-center text-gray-300 hover:text-white"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          <span>Back to Clients</span>
+        </button>
 
-          <Button
-            onClick={saveChanges}
-            disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-5 w-5 mr-2" />
-                Save Changes
-              </>
-            )}
-          </Button>
+        <button
+          onClick={saveChanges}
+          disabled={saving}
+          className="flex items-center bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition duration-200 disabled:opacity-70"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="h-5 w-5 mr-2" />
+              Save Changes
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Success and error messages */}
+      {success && (
+        <div className="bg-green-900/30 border border-green-800 p-4 rounded-lg">
+          <p className="text-green-400">{success}</p>
         </div>
+      )}
 
-        {/* Success and error messages */}
-        {success && (
-          <Alert className="bg-green-950/30 border border-green-900 text-green-400">
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
+      {error && (
+        <div className="bg-red-900/30 border border-red-800 p-4 rounded-lg">
+          <p className="text-red-400">{error}</p>
+        </div>
+      )}
 
-        {error && (
-          <Alert
-            variant="destructive"
-            className="bg-red-950/30 border border-red-900"
-          >
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+      {/* Client info card */}
+      <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <h1 className="text-2xl font-bold text-white mb-4">
+          {userData.firstName} {userData.lastName}
+        </h1>
 
-        {/* Client info card */}
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-2xl font-bold text-white">
-              {userData.firstName} {userData.lastName}
-            </CardTitle>
-            <Badge
-              variant={
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-gray-400 text-sm">Email</p>
+            <p className="text-white">{userData.email}</p>
+          </div>
+
+          <div>
+            <p className="text-gray-400 text-sm">Phone</p>
+            <p className="text-white">{userData.phoneNumber || "N/A"}</p>
+          </div>
+
+          <div>
+            <p className="text-gray-400 text-sm">Subscription</p>
+            <p className="text-white">
+              {userData.planType || "Standard"} (
+              {userData.billingCycle || "Monthly"})
+            </p>
+          </div>
+
+          <div>
+            <p className="text-gray-400 text-sm">Status</p>
+            <p
+              className={`${
                 userData.subscriptionStatus === "active"
-                  ? "default"
+                  ? "text-green-400"
                   : userData.subscriptionStatus === "canceled"
-                  ? "destructive"
-                  : "secondary"
-              }
-              className={
-                userData.subscriptionStatus === "active"
-                  ? "bg-blue-900 text-blue-200 hover:bg-blue-900"
-                  : userData.subscriptionStatus === "canceled"
-                  ? "bg-red-900 text-red-200 hover:bg-red-900"
-                  : "bg-yellow-900 text-yellow-200 hover:bg-yellow-900"
-              }
+                  ? "text-red-400"
+                  : "text-yellow-400"
+              }`}
             >
               {userData.subscriptionStatus === "active"
                 ? "Active"
                 : userData.subscriptionStatus === "canceled"
                 ? "Canceled"
-                : "Pending"}
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center">
-                <Mail className="h-5 w-5 text-blue-400 mr-3" />
-                <div>
-                  <p className="text-gray-400 text-xs">Email</p>
-                  <p className="text-white">{userData.email}</p>
-                </div>
-              </div>
+                : userData.subscriptionStatus === "pending"
+                ? "Pending"
+                : "N/A"}
+            </p>
+          </div>
+        </div>
+      </div>
 
-              <div className="flex items-center">
-                <Phone className="h-5 w-5 text-blue-400 mr-3" />
-                <div>
-                  <p className="text-gray-400 text-xs">Phone</p>
-                  <p className="text-white">{userData.phoneNumber || "N/A"}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center">
-                <CreditCard className="h-5 w-5 text-blue-400 mr-3" />
-                <div>
-                  <p className="text-gray-400 text-xs">Subscription</p>
-                  <p className="text-white">
-                    {userData.planType || "Standard"} (
-                    {userData.billingCycle || "Monthly"})
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center">
-                <Activity className="h-5 w-5 text-blue-400 mr-3" />
-                <div>
-                  <p className="text-gray-400 text-xs">Status</p>
-                  <p
-                    className={`${
-                      userData.subscriptionStatus === "active"
-                        ? "text-blue-400"
-                        : userData.subscriptionStatus === "canceled"
-                        ? "text-red-400"
-                        : "text-yellow-400"
+      {/* Project Phases Management */}
+      <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <h2 className="text-xl font-bold text-white mb-4">Project Phases</h2>
+        <div className="space-y-6">
+          {projectPhases.map((phase, phaseIndex) => (
+            <div
+              key={phaseIndex}
+              className="border border-gray-700 rounded-lg p-4"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${
+                      phase.status === "completed"
+                        ? "bg-green-900 text-green-400"
+                        : phase.status === "active"
+                        ? "bg-orange-900 text-orange-400"
+                        : "bg-gray-700 text-gray-400"
                     }`}
                   >
-                    {userData.subscriptionStatus === "active"
+                    {getPhaseIcon(phase.name)}
+                  </div>
+                  <h3 className="text-lg font-medium text-white">
+                    {phase.name}
+                  </h3>
+                </div>
+
+                <div className="flex items-center">
+                  <span
+                    className={`px-2 py-1 text-xs rounded-full mr-3 ${
+                      phase.status === "completed"
+                        ? "bg-green-900/30 text-green-400 border border-green-800"
+                        : phase.status === "active"
+                        ? "bg-orange-900/30 text-orange-400 border border-orange-800"
+                        : "bg-gray-700 text-gray-400 border border-gray-600"
+                    }`}
+                  >
+                    {phase.status === "completed"
+                      ? "Completed"
+                      : phase.status === "active"
                       ? "Active"
-                      : userData.subscriptionStatus === "canceled"
-                      ? "Canceled"
-                      : userData.subscriptionStatus === "pending"
-                      ? "Pending"
-                      : "N/A"}
+                      : "Pending"}
+                  </span>
+
+                  <select
+                    value={phase.status}
+                    onChange={(e) =>
+                      updatePhaseStatus(
+                        phaseIndex,
+                        e.target.value as "completed" | "active" | "pending"
+                      )
+                    }
+                    className="bg-gray-700 border-none text-white rounded-lg"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Tasks */}
+              <div className="space-y-3 ml-2">
+                {phase.tasks.map((task, taskIndex) => (
+                  <div
+                    key={taskIndex}
+                    className="flex items-center justify-between bg-gray-700/50 p-3 rounded-lg"
+                  >
+                    <div className="flex items-center">
+                      <button
+                        onClick={() =>
+                          toggleTaskCompletion(phaseIndex, taskIndex)
+                        }
+                        className="mr-3 flex-shrink-0"
+                      >
+                        {task.completed ? (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-gray-500" />
+                        )}
+                      </button>
+                      <span
+                        className={`${
+                          task.completed
+                            ? "text-gray-400 line-through"
+                            : "text-gray-200"
+                        }`}
+                      >
+                        {task.name}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => removeTask(phaseIndex, taskIndex)}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Add task form */}
+                <div className="mt-4 flex items-center">
+                  <input
+                    type="text"
+                    placeholder="Add new task..."
+                    className="flex-1 bg-gray-700 border-none rounded-l-lg px-3 py-2 text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const target = e.target as HTMLInputElement;
+                        addTask(phaseIndex, target.value);
+                        target.value = "";
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={(e) => {
+                      const input = e.currentTarget
+                        .previousSibling as HTMLInputElement;
+                      addTask(phaseIndex, input.value);
+                      input.value = "";
+                    }}
+                    className="bg-gray-600 text-white rounded-r-lg px-3 py-2 hover:bg-gray-500"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Website Preview Management */}
+      <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <h2 className="text-xl font-bold text-white mb-4">Website Preview</h2>
+
+        <div className="space-y-4">
+          {/* Current preview */}
+          {userData.websitePreviewUrl ? (
+            <div className="bg-gray-700/30 p-4 rounded-lg">
+              <p className="text-sm text-gray-400 mb-2">
+                Current Website Preview
+              </p>
+              <div
+                className="relative rounded-lg overflow-hidden"
+                style={{ maxHeight: "300px" }}
+              >
+                <img
+                  src={userData.websitePreviewUrl}
+                  alt="Website Preview"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-700/30 p-4 rounded-lg flex items-center justify-center">
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <p className="text-gray-400">No website preview image set</p>
+              </div>
+            </div>
+          )}
+
+          {/* Update preview URL */}
+          <div className="bg-gray-700/30 p-4 rounded-lg">
+            <p className="text-sm text-gray-400 mb-3">
+              Update Website Preview URL
+            </p>
+            <div className="flex">
+              <input
+                type="text"
+                placeholder="Enter image URL"
+                defaultValue={userData.websitePreviewUrl || ""}
+                className="flex-1 bg-gray-600 border border-gray-500 rounded-l-lg px-3 py-2 text-white"
+                id="website-preview-url"
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    const input = document.getElementById(
+                      "website-preview-url"
+                    ) as HTMLInputElement;
+                    const url = input.value.trim();
+
+                    if (url) {
+                      setSaving(true);
+                      setError("");
+                      setSuccess("");
+
+                      const docRef = doc(db, "users", id);
+                      await updateDoc(docRef, {
+                        websitePreviewUrl: url,
+                        updatedAt: new Date().toISOString(),
+                      });
+
+                      // Update local state to reflect changes immediately
+                      setUserData({
+                        ...userData,
+                        websitePreviewUrl: url,
+                      });
+
+                      setSuccess("Website preview image updated successfully");
+
+                      // Set success message timeout
+                      setTimeout(() => {
+                        setSuccess("");
+                      }, 3000);
+                    } else {
+                      setError("Please enter a valid URL");
+                    }
+                  } catch (err) {
+                    console.error("Error updating website preview:", err);
+                    setError("Failed to update website preview");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+              >
+                Update
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">
+              Paste a direct link to an image file (JPG, PNG, WEBP). The image
+              should be at least 1200x800 pixels.
+            </p>
+          </div>
+
+          {/* Remove preview */}
+          {userData.websitePreviewUrl && (
+            <div className="bg-gray-700/30 p-4 rounded-lg">
+              <p className="text-sm text-gray-400 mb-3">Remove Preview Image</p>
+              <button
+                onClick={async () => {
+                  try {
+                    setSaving(true);
+                    setError("");
+                    setSuccess("");
+
+                    const docRef = doc(db, "users", id);
+                    await updateDoc(docRef, {
+                      websitePreviewUrl: null,
+                      updatedAt: new Date().toISOString(),
+                    });
+
+                    // Update local state to reflect changes immediately
+                    setUserData({
+                      ...userData,
+                      websitePreviewUrl: undefined,
+                    });
+
+                    setSuccess("Website preview image removed");
+
+                    // Set success message timeout
+                    setTimeout(() => {
+                      setSuccess("");
+                    }, 3000);
+                  } catch (err) {
+                    console.error("Error removing website preview:", err);
+                    setError("Failed to remove website preview");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              >
+                Remove Preview Image
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Questionnaire Answers */}
+      <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <h2 className="text-xl font-bold text-white mb-4">
+          Questionnaire Answers
+        </h2>
+
+        {userData?.questionnaireAnswers ? (
+          <div className="space-y-6">
+            {/* Business Information */}
+            <div className="border-t border-gray-700 pt-4">
+              <h3 className="text-md font-medium text-gray-300 mb-3">
+                Business Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Business Name</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.businessName
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Business Tagline</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.businessTagline
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">
+                    Business Description
+                  </p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.businessDescription
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Business Goals</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.businessGoals
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">
+                    Unique Selling Proposition
+                  </p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.businessUnique
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">
+                    Services & Products
+                  </p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.servicesProducts
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Target Audience</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.targetAudience
+                    )}
                   </p>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Tabs for different sections */}
-        <Tabs defaultValue="phases" className="w-full">
-          <TabsList className="bg-gray-900 border-gray-800 p-0 mb-6">
-            <TabsTrigger
-              value="phases"
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white rounded-md py-2 px-4"
-            >
-              Project Phases
-            </TabsTrigger>
-            <TabsTrigger
-              value="preview"
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white rounded-md py-2 px-4"
-            >
-              Website Preview
-            </TabsTrigger>
-            <TabsTrigger
-              value="questionnaire"
-              className="data-[state=active]:bg-blue-900 data-[state=active]:text-white rounded-md py-2 px-4"
-            >
-              Questionnaire
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Project Phases Tab */}
-          <TabsContent value="phases" className="mt-0">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-white">
-                  Project Phases
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Manage the client&apos;s project progress through different
-                  phases
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {projectPhases.map((phase, phaseIndex) => (
-                  <Card
-                    key={phaseIndex}
-                    className="bg-gray-800 border-gray-700"
-                  >
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center">
-                          <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${
-                              phase.status === "completed"
-                                ? "bg-blue-900/60 text-blue-300"
-                                : phase.status === "active"
-                                ? "bg-blue-900/40 text-blue-400"
-                                : "bg-gray-700 text-gray-400"
-                            }`}
-                          >
-                            {getPhaseIcon(phase.name)}
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-medium text-white">
-                              {phase.name}
-                            </h3>
-                            <Badge
-                              variant="outline"
-                              className={`${
-                                phase.status === "completed"
-                                  ? "bg-blue-900/30 text-blue-300 border-blue-800"
-                                  : phase.status === "active"
-                                  ? "bg-blue-900/20 text-blue-400 border-blue-900"
-                                  : "bg-gray-800 text-gray-400 border-gray-700"
-                              }`}
-                            >
-                              {phase.status === "completed"
-                                ? "Completed"
-                                : phase.status === "active"
-                                ? "Active"
-                                : "Pending"}
-                            </Badge>
-                          </div>
-                        </div>
-
-                        <Select
-                          value={phase.status}
-                          onValueChange={(value) =>
-                            updatePhaseStatus(
-                              phaseIndex,
-                              value as "completed" | "active" | "pending"
-                            )
-                          }
-                        >
-                          <SelectTrigger className="w-[140px] bg-gray-800 border-gray-700">
-                            <SelectValue placeholder="Status" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-800 border-gray-700">
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {phase.tasks.map((task, taskIndex) => (
-                        <div
-                          key={taskIndex}
-                          className="flex items-center justify-between bg-gray-800/50 p-3 rounded-lg border border-gray-700"
-                        >
-                          <div className="flex items-center">
-                            <button
-                              onClick={() =>
-                                toggleTaskCompletion(phaseIndex, taskIndex)
-                              }
-                              className="mr-3 flex-shrink-0"
-                            >
-                              {task.completed ? (
-                                <CheckCircle className="h-5 w-5 text-blue-500" />
-                              ) : (
-                                <Circle className="h-5 w-5 text-gray-500" />
-                              )}
-                            </button>
-                            <span
-                              className={`${
-                                task.completed
-                                  ? "text-gray-400 line-through"
-                                  : "text-gray-200"
-                              }`}
-                            >
-                              {task.name}
+            {/* Design Information */}
+            <div className="border-t border-gray-700 pt-4">
+              <h3 className="text-md font-medium text-gray-300 mb-3">
+                Design Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Website Style</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.websiteStyle
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">
+                    Color Preferences
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {userData.questionnaireAnswers.colorPreferences &&
+                    Array.isArray(
+                      userData.questionnaireAnswers.colorPreferences
+                    ) ? (
+                      userData.questionnaireAnswers.colorPreferences.map(
+                        (color, index) => (
+                          <div key={index} className="flex items-center">
+                            <div
+                              className="w-4 h-4 rounded-full mr-1"
+                              style={{ backgroundColor: color }}
+                            ></div>
+                            <span className="text-xs text-gray-300">
+                              {color}
                             </span>
                           </div>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeTask(phaseIndex, taskIndex)}
-                            className="text-red-400 hover:text-red-300 hover:bg-red-950/30 h-8 w-8 p-0"
+                        )
+                      )
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        No color preferences
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Font Preferences</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.fontPreferences
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">
+                    Content Readiness
+                  </p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.contentReady
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Website Pages</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {userData.questionnaireAnswers.websitePages &&
+                    Array.isArray(
+                      userData.questionnaireAnswers.websitePages
+                    ) ? (
+                      userData.questionnaireAnswers.websitePages.map(
+                        (page, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 bg-gray-600 text-xs text-gray-200 rounded-md"
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                            {page}
+                          </span>
+                        )
+                      )
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        No pages specified
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Competitors */}
+            <div className="border-t border-gray-700 pt-4">
+              <h3 className="text-md font-medium text-gray-300 mb-3">
+                Competitors
+              </h3>
+              {userData.questionnaireAnswers.competitors &&
+              Array.isArray(userData.questionnaireAnswers.competitors) &&
+              userData.questionnaireAnswers.competitors.length > 0 ? (
+                <div className="space-y-2">
+                  {userData.questionnaireAnswers.competitors.map(
+                    (competitor, index) => (
+                      <div
+                        key={index}
+                        className="bg-gray-700/30 p-3 rounded-md flex items-center"
+                      >
+                        <div className="mr-3 w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center">
+                          <Globe className="h-3 w-3 text-gray-300" />
                         </div>
-                      ))}
-
-                      {/* Add task form */}
-                      <div className="mt-4 flex items-center">
-                        <Input
-                          type="text"
-                          placeholder="Add new task..."
-                          className="flex-1 bg-gray-800 border-gray-700 rounded-r-none focus-visible:ring-blue-500"
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              const target = e.target as HTMLInputElement;
-                              addTask(phaseIndex, target.value);
-                              target.value = "";
-                            }
-                          }}
-                        />
-                        <Button
-                          onClick={(e) => {
-                            const input = e.currentTarget
-                              .previousSibling as HTMLInputElement;
-                            addTask(phaseIndex, input.value);
-                            input.value = "";
-                          }}
-                          className="bg-blue-700 hover:bg-blue-600 text-white rounded-l-none"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Website Preview Tab */}
-          <TabsContent value="preview" className="mt-0">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-white">
-                  Website Preview
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Manage the client&apos;s website preview image
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Current preview */}
-                {userData.websitePreviewUrl ? (
-                  <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                    <p className="text-sm text-gray-400 mb-2">
-                      Current Website Preview
-                    </p>
-                    <div
-                      className="relative rounded-lg overflow-hidden"
-                      style={{ maxHeight: "300px" }}
-                    >
-                      {/* Using next/image would be better for performance, but keeping img to maintain functionality */}
-                      <img
-                        src={userData.websitePreviewUrl || "/placeholder.svg"}
-                        alt="Website Preview"
-                        className="w-full h-auto"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 flex items-center justify-center">
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <ImageIcon className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <p className="text-gray-400">
-                        No website preview image set
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Update preview URL */}
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-md font-medium text-white">
-                      Update Website Preview URL
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex">
-                      <Input
-                        type="text"
-                        placeholder="Enter image URL"
-                        defaultValue={userData.websitePreviewUrl || ""}
-                        className="flex-1 bg-gray-700 border-gray-600 rounded-r-none focus-visible:ring-blue-500"
-                        id="website-preview-url"
-                      />
-                      <Button
-                        onClick={async () => {
-                          try {
-                            const input = document.getElementById(
-                              "website-preview-url"
-                            ) as HTMLInputElement;
-                            const url = input.value.trim();
-
-                            if (url) {
-                              setSaving(true);
-                              setError("");
-                              setSuccess("");
-
-                              const docRef = doc(db, "users", id);
-                              await updateDoc(docRef, {
-                                websitePreviewUrl: url,
-                                updatedAt: new Date().toISOString(),
-                              });
-
-                              // Update local state to reflect changes immediately
-                              setUserData({
-                                ...userData,
-                                websitePreviewUrl: url,
-                              });
-
-                              setSuccess(
-                                "Website preview image updated successfully"
-                              );
-
-                              // Set success message timeout
-                              setTimeout(() => {
-                                setSuccess("");
-                              }, 3000);
-                            } else {
-                              setError("Please enter a valid URL");
-                            }
-                          } catch (err) {
-                            console.error(
-                              "Error updating website preview:",
-                              err
-                            );
-                            setError("Failed to update website preview");
-                          } finally {
-                            setSaving(false);
-                          }
-                        }}
-                        className="bg-blue-700 hover:bg-blue-600 text-white rounded-l-none"
-                      >
-                        Update
-                      </Button>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Paste a direct link to an image file (JPG, PNG, WEBP). The
-                      image should be at least 1200x800 pixels.
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {/* Remove preview */}
-                {userData.websitePreviewUrl && (
-                  <Card className="bg-gray-800 border-gray-700">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-md font-medium text-white">
-                        Remove Preview Image
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        variant="destructive"
-                        onClick={async () => {
-                          try {
-                            setSaving(true);
-                            setError("");
-                            setSuccess("");
-
-                            const docRef = doc(db, "users", id);
-                            await updateDoc(docRef, {
-                              websitePreviewUrl: null,
-                              updatedAt: new Date().toISOString(),
-                            });
-
-                            // Update local state to reflect changes immediately
-                            setUserData({
-                              ...userData,
-                              websitePreviewUrl: undefined,
-                            });
-
-                            setSuccess("Website preview image removed");
-
-                            // Set success message timeout
-                            setTimeout(() => {
-                              setSuccess("");
-                            }, 3000);
-                          } catch (err) {
-                            console.error(
-                              "Error removing website preview:",
-                              err
-                            );
-                            setError("Failed to remove website preview");
-                          } finally {
-                            setSaving(false);
-                          }
-                        }}
-                        className="bg-red-700 hover:bg-red-600 text-white"
-                      >
-                        Remove Preview Image
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Questionnaire Tab */}
-          <TabsContent value="questionnaire" className="mt-0">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-white">
-                  Questionnaire Answers
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  View client&apos;s responses to the onboarding questionnaire
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {userData?.questionnaireAnswers ? (
-                  <div className="space-y-6">
-                    {/* Business Information */}
-                    <div>
-                      <h3 className="text-md font-medium text-blue-400 mb-3 flex items-center">
-                        <Building className="h-4 w-4 mr-2" />
-                        Business Information
-                      </h3>
-                      <Separator className="mb-4 bg-gray-800" />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Business Name
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.businessName
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Business Tagline
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.businessTagline
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Business Description
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers
-                                  .businessDescription
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Business Goals
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.businessGoals
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Unique Selling Proposition
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.businessUnique
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Services & Products
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.servicesProducts
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Target Audience
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.targetAudience
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-
-                    {/* Design Information */}
-                    <div>
-                      <h3 className="text-md font-medium text-blue-400 mb-3 flex items-center">
-                        <PenTool className="h-4 w-4 mr-2" />
-                        Design Information
-                      </h3>
-                      <Separator className="mb-4 bg-gray-800" />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Website Style
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.websiteStyle
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Color Preferences
-                            </p>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {userData.questionnaireAnswers.colorPreferences &&
-                              Array.isArray(
-                                userData.questionnaireAnswers.colorPreferences
-                              ) ? (
-                                userData.questionnaireAnswers.colorPreferences.map(
-                                  (color, index) => (
-                                    <div
-                                      key={index}
-                                      className="flex items-center"
-                                    >
-                                      <div
-                                        className="w-4 h-4 rounded-full mr-1"
-                                        style={{ backgroundColor: color }}
-                                      ></div>
-                                      <span className="text-xs text-gray-300">
-                                        {color}
-                                      </span>
-                                    </div>
-                                  )
-                                )
-                              ) : (
-                                <span className="text-sm text-gray-400">
-                                  No color preferences
-                                </span>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Font Preferences
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.fontPreferences
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Content Readiness
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.contentReady
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Website Pages
-                            </p>
-                            <div className="flex flex-wrap gap-2 mt-1">
-                              {userData.questionnaireAnswers.websitePages &&
-                              Array.isArray(
-                                userData.questionnaireAnswers.websitePages
-                              ) ? (
-                                userData.questionnaireAnswers.websitePages.map(
-                                  (page, index) => (
-                                    <Badge
-                                      key={index}
-                                      className="bg-blue-900/30 text-blue-300 border-blue-800"
-                                    >
-                                      {page}
-                                    </Badge>
-                                  )
-                                )
-                              ) : (
-                                <span className="text-sm text-gray-400">
-                                  No pages specified
-                                </span>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-
-                    {/* Competitors */}
-                    <div>
-                      <h3 className="text-md font-medium text-blue-400 mb-3 flex items-center">
-                        <Target className="h-4 w-4 mr-2" />
-                        Competitors
-                      </h3>
-                      <Separator className="mb-4 bg-gray-800" />
-                      {userData.questionnaireAnswers.competitors &&
-                      Array.isArray(
-                        userData.questionnaireAnswers.competitors
-                      ) &&
-                      userData.questionnaireAnswers.competitors.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {userData.questionnaireAnswers.competitors.map(
-                            (competitor, index) => (
-                              <Card
-                                key={index}
-                                className="bg-gray-800 border-gray-700"
-                              >
-                                <CardContent className="p-4 flex items-center">
-                                  <div className="mr-3 w-8 h-8 rounded-full bg-blue-900/30 flex items-center justify-center">
-                                    <Globe className="h-4 w-4 text-blue-300" />
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-white">
-                                      {competitor.name}
-                                    </p>
-                                    {competitor.url && (
-                                      <a
-                                        href={
-                                          /^https?:\/\//.test(competitor.url)
-                                            ? competitor.url
-                                            : `https://${competitor.url}`
-                                        }
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-xs text-blue-400 hover:underline flex items-center"
-                                      >
-                                        {competitor.url}
-                                        <ExternalLink className="h-3 w-3 ml-1" />
-                                      </a>
-                                    )}
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            )
+                        <div>
+                          <p className="text-sm text-gray-200">
+                            {competitor.name}
+                          </p>
+                          {competitor.url && (
+                            <a
+                              href={
+                                /^https?:\/\//.test(competitor.url)
+                                  ? competitor.url
+                                  : `https://${competitor.url}`
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-orange-400 hover:underline"
+                            >
+                              {competitor.url}
+                            </a>
                           )}
                         </div>
-                      ) : (
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-sm text-gray-400">
-                              No competitors listed
-                            </p>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : (
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-sm text-gray-400">No competitors listed</p>
+                </div>
+              )}
+            </div>
 
-                    {/* Technical Information */}
-                    <div>
-                      <h3 className="text-md font-medium text-blue-400 mb-3 flex items-center">
-                        <Server className="h-4 w-4 mr-2" />
-                        Technical Information
-                      </h3>
-                      <Separator className="mb-4 bg-gray-800" />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Current Website
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.hasCurrentWebsite
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        {userData.questionnaireAnswers.hasCurrentWebsite ===
-                          "Yes" && (
-                          <>
-                            <Card className="bg-gray-800 border-gray-700">
-                              <CardContent className="p-4">
-                                <p className="text-xs text-gray-400 mb-1">
-                                  Current Website URL
-                                </p>
-                                {userData.questionnaireAnswers
-                                  .currentWebsiteUrl ? (
-                                  <a
-                                    href={
-                                      /^https?:\/\//.test(
-                                        userData.questionnaireAnswers
-                                          .currentWebsiteUrl as string
-                                      )
-                                        ? (userData.questionnaireAnswers
-                                            .currentWebsiteUrl as string)
-                                        : `https://${userData.questionnaireAnswers.currentWebsiteUrl}`
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm text-blue-400 hover:underline flex items-center"
-                                  >
-                                    {
-                                      userData.questionnaireAnswers
-                                        .currentWebsiteUrl
-                                    }
-                                    <ExternalLink className="h-3 w-3 ml-1" />
-                                  </a>
-                                ) : (
-                                  <p className="text-sm text-gray-400">
-                                    Not provided
-                                  </p>
-                                )}
-                              </CardContent>
-                            </Card>
-                            <Card className="bg-gray-800 border-gray-700">
-                              <CardContent className="p-4">
-                                <p className="text-xs text-gray-400 mb-1">
-                                  Current CMS/Platform
-                                </p>
-                                <p className="text-sm text-white">
-                                  {renderQuestionnaireField(
-                                    userData.questionnaireAnswers.currentCms
-                                  )}
-                                </p>
-                              </CardContent>
-                            </Card>
-                            <Card className="bg-gray-800 border-gray-700">
-                              <CardContent className="p-4">
-                                <p className="text-xs text-gray-400 mb-1">
-                                  Current Website Likes
-                                </p>
-                                <p className="text-sm text-white">
-                                  {renderQuestionnaireField(
-                                    userData.questionnaireAnswers.websiteLikes
-                                  )}
-                                </p>
-                              </CardContent>
-                            </Card>
-                            <Card className="bg-gray-800 border-gray-700">
-                              <CardContent className="p-4">
-                                <p className="text-xs text-gray-400 mb-1">
-                                  Current Website Dislikes
-                                </p>
-                                <p className="text-sm text-white">
-                                  {renderQuestionnaireField(
-                                    userData.questionnaireAnswers
-                                      .websiteDislikes
-                                  )}
-                                </p>
-                              </CardContent>
-                            </Card>
-                          </>
-                        )}
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Domain Name
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.domainName
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="bg-gray-800 border-gray-700">
-                          <CardContent className="p-4">
-                            <p className="text-xs text-gray-400 mb-1">
-                              Domain Provider
-                            </p>
-                            <p className="text-sm text-white">
-                              {renderQuestionnaireField(
-                                userData.questionnaireAnswers.domainProvider
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
+            {/* Assets */}
+            <div className="border-t border-gray-700 pt-4">
+              <h3 className="text-md font-medium text-gray-300 mb-3">
+                Uploaded Assets
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Logo */}
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-2">Logo</p>
+                  {userData.questionnaireAnswers.logoUpload &&
+                  typeof userData.questionnaireAnswers.logoUpload ===
+                    "object" &&
+                  "url" in userData.questionnaireAnswers.logoUpload ? (
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-gray-600 rounded-md flex items-center justify-center overflow-hidden mr-3">
+                        {/* Use Next.js Image for better performance */}
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={userData.questionnaireAnswers.logoUpload.url}
+                            alt="Logo"
+                            layout="fill"
+                            objectFit="contain"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-200">
+                          {userData.questionnaireAnswers.logoUpload.name}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {(
+                            userData.questionnaireAnswers.logoUpload.size / 1024
+                          ).toFixed(1)}{" "}
+                          KB
+                        </p>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 text-center">
-                    <p className="text-gray-400">
-                      No questionnaire answers available
+                  ) : (
+                    <p className="text-sm text-gray-400">No logo uploaded</p>
+                  )}
+                </div>
+
+                {/* Team Photos */}
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-2">Team Photos</p>
+                  {userData.questionnaireAnswers.teamPhotos &&
+                  Array.isArray(userData.questionnaireAnswers.teamPhotos) &&
+                  userData.questionnaireAnswers.teamPhotos.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-2">
+                      {userData.questionnaireAnswers.teamPhotos
+                        .slice(0, 6)
+                        .map((photo, index) => (
+                          <div
+                            key={index}
+                            className="aspect-square bg-gray-600 rounded-md flex items-center justify-center overflow-hidden"
+                          >
+                            {/* Use Next.js Image */}
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={photo.url}
+                                alt={`Team photo ${index + 1}`}
+                                layout="fill"
+                                objectFit="cover"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      {userData.questionnaireAnswers.teamPhotos.length > 6 && (
+                        <div className="aspect-square bg-gray-600 rounded-md flex items-center justify-center">
+                          <span className="text-sm text-gray-300">
+                            +
+                            {userData.questionnaireAnswers.teamPhotos.length -
+                              6}{" "}
+                            more
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-400">
+                      No team photos uploaded
                     </p>
-                  </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="border-t border-gray-700 pt-4">
+              <h3 className="text-md font-medium text-gray-300 mb-3">
+                Technical Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Current Website</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.hasCurrentWebsite
+                    )}
+                  </p>
+                </div>
+                {userData.questionnaireAnswers.hasCurrentWebsite === "Yes" && (
+                  <>
+                    <div className="bg-gray-700/30 p-3 rounded-md">
+                      <p className="text-xs text-gray-400 mb-1">
+                        Current Website URL
+                      </p>
+                      {userData.questionnaireAnswers.currentWebsiteUrl ? (
+                        <a
+                          href={
+                            /^https?:\/\//.test(
+                              userData.questionnaireAnswers
+                                .currentWebsiteUrl as string
+                            )
+                              ? (userData.questionnaireAnswers
+                                  .currentWebsiteUrl as string)
+                              : `https://${userData.questionnaireAnswers.currentWebsiteUrl}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-orange-400 hover:underline"
+                        >
+                          {userData.questionnaireAnswers.currentWebsiteUrl}
+                        </a>
+                      ) : (
+                        <p className="text-sm text-gray-400">Not provided</p>
+                      )}
+                    </div>
+                    <div className="bg-gray-700/30 p-3 rounded-md">
+                      <p className="text-xs text-gray-400 mb-1">
+                        Current CMS/Platform
+                      </p>
+                      <p className="text-sm text-gray-200">
+                        {renderQuestionnaireField(
+                          userData.questionnaireAnswers.currentCms
+                        )}
+                      </p>
+                    </div>
+                    <div className="bg-gray-700/30 p-3 rounded-md">
+                      <p className="text-xs text-gray-400 mb-1">
+                        Current Website Likes
+                      </p>
+                      <p className="text-sm text-gray-200">
+                        {renderQuestionnaireField(
+                          userData.questionnaireAnswers.websiteLikes
+                        )}
+                      </p>
+                    </div>
+                    <div className="bg-gray-700/30 p-3 rounded-md">
+                      <p className="text-xs text-gray-400 mb-1">
+                        Current Website Dislikes
+                      </p>
+                      <p className="text-sm text-gray-200">
+                        {renderQuestionnaireField(
+                          userData.questionnaireAnswers.websiteDislikes
+                        )}
+                      </p>
+                    </div>
+                  </>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Domain Name</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.domainName
+                    )}
+                  </p>
+                </div>
+                <div className="bg-gray-700/30 p-3 rounded-md">
+                  <p className="text-xs text-gray-400 mb-1">Domain Provider</p>
+                  <p className="text-sm text-gray-200">
+                    {renderQuestionnaireField(
+                      userData.questionnaireAnswers.domainProvider
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-gray-700/30 p-4 rounded-lg text-center">
+            <p className="text-gray-400">No questionnaire answers available</p>
+          </div>
+        )}
       </div>
     </div>
   );
