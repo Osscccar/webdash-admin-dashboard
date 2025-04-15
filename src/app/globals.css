@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.browser-mockup {
+  transition: all 0.3s ease;
+}
+
+.perspective-800 {
+  perspective: 800px;
+}
+
+.rotate-y-1 {
+  transform: rotateY(1deg);
+}
+
+.rotate-x-1 {
+  transform: rotateX(1deg);
+}
+
+.browser-mockup {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 25px, rgba(0, 0, 0, 0.04) 0px 6px 10px;
+}
