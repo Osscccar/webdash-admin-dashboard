@@ -1,18 +1,11 @@
 // src/app/dashboard/client/[id]/client-detail.tsx
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import {
-  UserData,
-  ProjectPhase,
-  FileUpload,
-  WebsiteEntry,
-  FeedbackMessage,
-} from "@/types";
+import { UserData, ProjectPhase, FileUpload, WebsiteEntry } from "@/types";
 import {
   ArrowLeft,
   Save,
