@@ -1,4 +1,5 @@
 // src/app/dashboard/client/[id]/client-detail.tsx
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 "use client";
 
 import { useState, useEffect, useRef } from "react";
