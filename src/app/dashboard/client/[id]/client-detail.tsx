@@ -643,6 +643,150 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
         </div>
       </div>
 
+      {/* Website URL Management */}
+      <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <h2 className="text-xl font-bold text-white mb-4">Live Website URL</h2>
+
+        <div className="space-y-4">
+          {/* Current website URL */}
+          {userData.websiteUrl ? (
+            <div className="bg-gray-700/30 p-4 rounded-lg">
+              <p className="text-sm text-gray-400 mb-2">
+                Current Live Website URL
+              </p>
+              <div className="flex items-center">
+                <a
+                  href={
+                    userData.websiteUrl.startsWith("http")
+                      ? userData.websiteUrl
+                      : `https://${userData.websiteUrl}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:underline flex items-center"
+                >
+                  <Globe className="h-4 w-4 mr-2" />
+                  {userData.websiteUrl}
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-700/30 p-4 rounded-lg flex items-center justify-center">
+              <div className="text-center py-4">
+                <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Globe className="h-6 w-6 text-gray-400" />
+                </div>
+                <p className="text-gray-400">No website URL has been set</p>
+              </div>
+            </div>
+          )}
+
+          {/* Update website URL */}
+          <div className="bg-gray-700/30 p-4 rounded-lg">
+            <p className="text-sm text-gray-400 mb-3">
+              Update Live Website URL
+            </p>
+            <div className="flex">
+              <input
+                type="text"
+                placeholder="Enter website URL (e.g., example.com)"
+                defaultValue={userData.websiteUrl || ""}
+                className="flex-1 bg-gray-600 border border-gray-500 rounded-l-lg px-3 py-2 text-white"
+                id="website-url"
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    const input = document.getElementById(
+                      "website-url"
+                    ) as HTMLInputElement;
+                    const url = input.value.trim();
+
+                    setSaving(true);
+                    setError("");
+                    setSuccess("");
+
+                    const docRef = doc(db, "users", id);
+                    await updateDoc(docRef, {
+                      websiteUrl: url,
+                      updatedAt: new Date().toISOString(),
+                    });
+
+                    // Update local state to reflect changes immediately
+                    setUserData({
+                      ...userData,
+                      websiteUrl: url,
+                    });
+
+                    setSuccess("Website URL updated successfully");
+
+                    // Set success message timeout
+                    setTimeout(() => {
+                      setSuccess("");
+                    }, 3000);
+                  } catch (err) {
+                    console.error("Error updating website URL:", err);
+                    setError("Failed to update website URL");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+              >
+                Update
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">
+              Enter the full URL of the customer's live website. It will be
+              displayed in their dashboard.
+            </p>
+          </div>
+
+          {/* Remove website URL */}
+          {userData.websiteUrl && (
+            <div className="bg-gray-700/30 p-4 rounded-lg">
+              <p className="text-sm text-gray-400 mb-3">Remove Website URL</p>
+              <button
+                onClick={async () => {
+                  try {
+                    setSaving(true);
+                    setError("");
+                    setSuccess("");
+
+                    const docRef = doc(db, "users", id);
+                    await updateDoc(docRef, {
+                      websiteUrl: null,
+                      updatedAt: new Date().toISOString(),
+                    });
+
+                    // Update local state to reflect changes immediately
+                    setUserData({
+                      ...userData,
+                      websiteUrl: undefined,
+                    });
+
+                    setSuccess("Website URL removed");
+
+                    // Set success message timeout
+                    setTimeout(() => {
+                      setSuccess("");
+                    }, 3000);
+                  } catch (err) {
+                    console.error("Error removing website URL:", err);
+                    setError("Failed to remove website URL");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              >
+                Remove Website URL
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Questionnaire Answers */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
         <h2 className="text-xl font-bold text-white mb-4">
