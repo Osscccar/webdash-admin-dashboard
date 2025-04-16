@@ -767,7 +767,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   </button>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">
-                  Enter the full URL of the customer's live website. It will be
+                  Enter the full URL of the customers live website. It will be
                   displayed in their dashboard.
                 </p>
               </div>
