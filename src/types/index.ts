@@ -21,6 +21,7 @@ export interface UserData {
   websitePreviewUrl?: string; // URL for website preview image
   feedbackMessages?: FeedbackMessage[];
   editorUrl?: string;
+  revisionsUrl?: string;
 
   // Add any other fields your users might have
 }
