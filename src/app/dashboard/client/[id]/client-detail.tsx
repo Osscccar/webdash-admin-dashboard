@@ -819,6 +819,152 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             </div>
           </div>
 
+          <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+            <h2 className="text-xl font-bold text-white mb-4">
+              Live Editor URL
+            </h2>
+
+            <div className="space-y-4">
+              {/* Current editor URL */}
+              {userData.editorUrl ? (
+                <div className="bg-gray-700/30 p-4 rounded-lg">
+                  <p className="text-sm text-gray-400 mb-2">
+                    Current Live Editor URL
+                  </p>
+                  <div className="flex items-center">
+                    <a
+                      href={
+                        userData.editorUrl.startsWith("http")
+                          ? userData.editorUrl
+                          : `https://${userData.editorUrl}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:underline flex items-center"
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      {userData.editorUrl}
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-700/30 p-4 rounded-lg flex items-center justify-center">
+                  <div className="text-center py-4">
+                    <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Globe className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <p className="text-gray-400">No editor URL has been set</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Update editor URL */}
+              <div className="bg-gray-700/30 p-4 rounded-lg">
+                <p className="text-sm text-gray-400 mb-3">
+                  Update Live editor URL
+                </p>
+                <div className="flex">
+                  <input
+                    type="text"
+                    placeholder="Enter editor URL (e.g., example.com)"
+                    defaultValue={userData.editorUrl || ""}
+                    className="flex-1 bg-gray-600 border border-gray-500 rounded-l-lg px-3 py-2 text-white"
+                    id="editor-url"
+                  />
+                  <button
+                    onClick={async () => {
+                      try {
+                        const input = document.getElementById(
+                          "editor-url"
+                        ) as HTMLInputElement;
+                        const url = input.value.trim();
+
+                        setSaving(true);
+                        setError("");
+                        setSuccess("");
+
+                        const docRef = doc(db, "users", id);
+                        await updateDoc(docRef, {
+                          editorUrl: url,
+                          updatedAt: new Date().toISOString(),
+                        });
+
+                        // Update local state to reflect changes immediately
+                        setUserData({
+                          ...userData,
+                          editorUrl: url,
+                        });
+
+                        setSuccess("Editor URL updated successfully");
+
+                        // Set success message timeout
+                        setTimeout(() => {
+                          setSuccess("");
+                        }, 3000);
+                      } catch (err) {
+                        console.error("Error updating editor URL:", err);
+                        setError("Failed to update editor URL");
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+                  >
+                    Update
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  Enter the full URL of the editor.
+                </p>
+              </div>
+
+              {/* Remove editor URL */}
+              {userData.editorUrl && (
+                <div className="bg-gray-700/30 p-4 rounded-lg">
+                  <p className="text-sm text-gray-400 mb-3">
+                    Remove editor URL
+                  </p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        setSaving(true);
+                        setError("");
+                        setSuccess("");
+
+                        const docRef = doc(db, "users", id);
+                        await updateDoc(docRef, {
+                          editorUrl: null,
+                          updatedAt: new Date().toISOString(),
+                        });
+
+                        // Update local state to reflect changes immediately
+                        setUserData({
+                          ...userData,
+                          editorUrl: undefined,
+                        });
+
+                        setSuccess("Editor URL removed");
+
+                        // Set success message timeout
+                        setTimeout(() => {
+                          setSuccess("");
+                        }, 3000);
+                      } catch (err) {
+                        console.error("Error removing editor URL:", err);
+                        setError("Failed to remove editor URL");
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    Remove Editor URL
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Questionnaire Answers */}
           <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
             <h2 className="text-xl font-bold text-white mb-4">

@@ -20,6 +20,7 @@ export interface UserData {
   websiteUrl?: string; // Live URL for the customer's website
   websitePreviewUrl?: string; // URL for website preview image
   feedbackMessages?: FeedbackMessage[];
+  editorUrl?: string;
 
   // Add any other fields your users might have
 }
