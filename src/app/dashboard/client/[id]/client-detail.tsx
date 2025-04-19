@@ -23,6 +23,7 @@ import {
   Lock,
 } from "lucide-react";
 import Image from "next/image";
+import { DownloadButton } from "@/components/DownloadButton";
 
 // Default project phases for new clients
 const DEFAULT_PROJECT_PHASES: ProjectPhase[] = [
@@ -1371,7 +1372,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                               />
                             </div>
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-sm text-gray-200">
                               {userData.questionnaireAnswers.logoUpload.name}
                             </p>
@@ -1383,6 +1384,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                               KB
                             </p>
                           </div>
+
+                          {/* Add download button */}
+                          <DownloadButton
+                            url={userData.questionnaireAnswers.logoUpload.url}
+                            filename={
+                              userData.questionnaireAnswers.logoUpload.name
+                            }
+                          />
                         </div>
                       ) : (
                         <p className="text-sm text-gray-400">
