@@ -4,7 +4,6 @@ import { Copy, Check, ExternalLink } from "lucide-react";
 
 interface DownloadButtonProps {
   url: string;
-  filename: string;
 }
 
 export const DownloadButton = ({ url, filename }: DownloadButtonProps) => {
