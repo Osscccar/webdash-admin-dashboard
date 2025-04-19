@@ -1386,7 +1386,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           </div>
 
                           {/* Add download button */}
-                          <DownloadButton
+                          <AssetActions
                             url={userData.questionnaireAnswers.logoUpload.url}
                             filename={
                               userData.questionnaireAnswers.logoUpload.name
