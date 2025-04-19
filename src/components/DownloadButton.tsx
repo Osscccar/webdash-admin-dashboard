@@ -6,7 +6,7 @@ interface DownloadButtonProps {
   url: string;
 }
 
-export const DownloadButton = ({ url, filename }: DownloadButtonProps) => {
+export const DownloadButton = ({ url }: DownloadButtonProps) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const handleCopyUrl = async () => {
