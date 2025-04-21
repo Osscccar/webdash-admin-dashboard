@@ -2265,14 +2265,13 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                                   layout="fill"
                                   objectFit="cover"
                                 />
-                              </div>
+                                <div className="absolute bottom-1 left-1 right-1 flex justify-between p-1 bg-black/50 rounded-md text-white text-xs">
+                                  {/* Download Button */}
+                                  <DownloadButton url={photo.url} />
 
-                              <div className="absolute bottom-1 left-1 right-1 flex justify-between p-1 bg-black/50 rounded-md text-white text-xs">
-                                {/* Download Button */}
-                                <DownloadButton url={photo.url} />
-
-                                {/* OR if you want a Copy URL button instead of download */}
-                                {/* <CopyButton text={photo.url} /> */}
+                                  {/* OR if you want a Copy URL button instead of download */}
+                                  {/* <CopyButton text={photo.url} /> */}
+                                </div>
                               </div>
                             </div>
                           ))}
