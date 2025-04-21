@@ -1049,7 +1049,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 {domainInfo.isCustom && (
                   <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                     <h4 className="text-md font-medium text-white mb-3">
-                      Domain Provider
+                      Domain Provider - this is off the questionnaire
                     </h4>
 
                     <div className="flex">
@@ -1340,8 +1340,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     settings at their domain provider.
                   </li>
                   <li>
-                    Free domains included with plans will be automatically
-                    configured.
+                    Free domains included with plans will need to be configured.
                   </li>
                   <li>
                     Allow 24-48 hours for DNS changes to fully propagate after
@@ -2266,6 +2265,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                                   layout="fill"
                                   objectFit="cover"
                                 />
+                              </div>
+
+                              <div className="absolute bottom-1 left-1 right-1 flex justify-between p-1 bg-black/50 rounded-md text-white text-xs">
+                                {/* Download Button */}
+                                <DownloadButton url={photo.url} />
+
+                                {/* OR if you want a Copy URL button instead of download */}
+                                {/* <CopyButton text={photo.url} /> */}
                               </div>
                             </div>
                           ))}
