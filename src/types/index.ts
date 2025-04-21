@@ -1,5 +1,16 @@
 // src/types/index.ts
 
+// Project Phase types
+export interface ProjectPhase {
+  name: string;
+  status: "completed" | "active" | "pending";
+  tasks: {
+    name: string;
+    completed: boolean;
+  }[];
+}
+
+// User-related types
 export interface UserData {
   id?: string;
   email: string;
@@ -11,19 +22,22 @@ export interface UserData {
   subscriptionStatus?: "active" | "canceled" | "pending" | "suspended";
   paymentMethod?: string;
   completedQuestionnaire?: boolean;
+  questionnaireAnswers?: QuestionnaireAnswers;
   createdAt?: string;
   updatedAt?: string;
   planType?: string;
   billingCycle?: string;
-  projectPhases?: ProjectPhase[];
-  questionnaireAnswers?: QuestionnaireAnswers;
+  projectPhases?: ProjectPhase[]; // Added project phases to the user data type
   websiteUrl?: string; // Live URL for the customer's website
   websitePreviewUrl?: string; // URL for website preview image
   feedbackMessages?: FeedbackMessage[];
   editorUrl?: string;
   revisionsUrl?: string;
-
-  // Add any other fields your users might have
+  // Reminder questionnaire stuff
+  questionnairePostponed?: boolean;
+  questionnaireReminderStatus?: string;
+  firstReminderTime?: string;
+  secondReminderTime?: string;
 }
 
 export interface FeedbackMessage {
@@ -37,15 +51,7 @@ export interface FeedbackMessage {
   adminName?: string;
 }
 
-export interface ProjectPhase {
-  name: string;
-  status: "completed" | "active" | "pending";
-  tasks: {
-    name: string;
-    completed: boolean;
-  }[];
-}
-
+// For file uploads
 export interface FileUpload {
   name: string;
   url: string;
@@ -59,6 +65,16 @@ export interface WebsiteEntry {
   url: string;
 }
 
+// Adding domain information type
+export interface DomainInfo {
+  name: string;
+  isCustom: boolean;
+  provider?: string;
+  registrationDate?: string;
+  expiryDate?: string;
+}
+
+// Questionnaire answers can have different types depending on the question
 export interface QuestionnaireAnswers {
   [key: string]:
     | string
@@ -66,6 +82,7 @@ export interface QuestionnaireAnswers {
     | WebsiteEntry[]
     | FileUpload
     | FileUpload[]
+    | DomainInfo
     | null
     | undefined;
 
@@ -107,6 +124,8 @@ export interface QuestionnaireAnswers {
 
   // Technical & Admin
   domainName?: string;
+  customDomainName?: string; // For custom domain input
+  domainProvider?: string;
 
   // SEO & Marketing
   seoKeywords?: WebsiteEntry[];
