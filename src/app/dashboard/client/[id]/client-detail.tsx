@@ -808,8 +808,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                             }`}
                           >
                             {domainInfo.isCustom
-                              ? "Custom Domain"
-                              : "Provided Domain"}
+                              ? "Provided Domain (They already have a domain)"
+                              : "Custom Domain (We supply this domain)"}
                           </span>
                         </>
                       ) : (
