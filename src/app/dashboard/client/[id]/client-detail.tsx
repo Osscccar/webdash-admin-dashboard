@@ -467,7 +467,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50">
       {/* Toast notification */}
       {toast.visible && (
         <Toast message={toast.message} type={toast.type} onClose={hideToast} />
@@ -500,140 +500,142 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
           sidebarOpen ? "72" : "20"
         } transition-all duration-300`}
       >
-        {/* Header */}
-        <ClientHeader
-          userData={userData}
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          router={router}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          isSearchOpen={isSearchOpen}
-          setIsSearchOpen={setIsSearchOpen}
-          isExporting={isExporting}
-          exportClientData={exportClientData}
-          isNotificationsOpen={isNotificationsOpen}
-          setIsNotificationsOpen={setIsNotificationsOpen}
-          isUserMenuOpen={isUserMenuOpen}
-          setIsUserMenuOpen={setIsUserMenuOpen}
-          setActiveTab={setActiveTab}
-          saving={saving}
-          saveChanges={saveChanges}
-        />
+        <div className="pl-[72px] md:pl-[72px]">
+          {/* Header */}
+          <ClientHeader
+            userData={userData}
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            router={router}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isSearchOpen={isSearchOpen}
+            setIsSearchOpen={setIsSearchOpen}
+            isExporting={isExporting}
+            exportClientData={exportClientData}
+            isNotificationsOpen={isNotificationsOpen}
+            setIsNotificationsOpen={setIsNotificationsOpen}
+            isUserMenuOpen={isUserMenuOpen}
+            setIsUserMenuOpen={setIsUserMenuOpen}
+            setActiveTab={setActiveTab}
+            saving={saving}
+            saveChanges={saveChanges}
+          />
 
-        {/* Content area */}
-        <div className="p-6">
-          {/* Website Tab - Sub Navigation */}
-          {activeTab === "website" && (
-            <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6">
-              <div className="flex p-2 overflow-x-auto">
-                <button
-                  onClick={() => setActiveSubTab("preview")}
-                  className={`px-4 py-2 rounded-lg mr-2 whitespace-nowrap transition-colors duration-200 cursor-pointer ${
-                    activeSubTab === "preview"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Preview Image
-                </button>
-                <button
-                  onClick={() => setActiveSubTab("liveUrl")}
-                  className={`px-4 py-2 rounded-lg mr-2 whitespace-nowrap transition-colors duration-200 cursor-pointer ${
-                    activeSubTab === "liveUrl"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Live URL
-                </button>
-                <button
-                  onClick={() => setActiveSubTab("editor")}
-                  className={`px-4 py-2 rounded-lg mr-2 whitespace-nowrap transition-colors duration-200 cursor-pointer ${
-                    activeSubTab === "editor"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Editor URL
-                </button>
-                <button
-                  onClick={() => setActiveSubTab("revisions")}
-                  className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors duration-200 cursor-pointer ${
-                    activeSubTab === "revisions"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Revisions URL
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Tab content */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            {activeTab === "overview" && (
-              <OverviewTab
-                userData={userData}
-                projectPhases={projectPhases}
-                projectCompletionPercentage={projectCompletionPercentage}
-                domainInfo={domainInfo}
-                setActiveTab={setActiveTab}
-                exportClientData={exportClientData}
-              />
-            )}
-
-            {activeTab === "domain" && (
-              <DomainTab
-                userData={userData}
-                domainInfo={domainInfo}
-                updateDomainInfo={updateDomainInfo}
-                showConfirmModal={showConfirmModal}
-              />
-            )}
-
+          {/* Content area */}
+          <div className="p-6">
+            {/* Website Tab - Sub Navigation */}
             {activeTab === "website" && (
-              <WebsiteTab
-                userData={userData}
-                activeSubTab={activeSubTab}
-                updateUserField={updateUserField}
-              />
+              <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6">
+                <div className="flex p-2 overflow-x-auto">
+                  <button
+                    onClick={() => setActiveSubTab("preview")}
+                    className={`px-4 py-2 rounded-lg mr-2 whitespace-nowrap transition-colors duration-200 cursor-pointer ${
+                      activeSubTab === "preview"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Preview Image
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab("liveUrl")}
+                    className={`px-4 py-2 rounded-lg mr-2 whitespace-nowrap transition-colors duration-200 cursor-pointer ${
+                      activeSubTab === "liveUrl"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Live URL
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab("editor")}
+                    className={`px-4 py-2 rounded-lg mr-2 whitespace-nowrap transition-colors duration-200 cursor-pointer ${
+                      activeSubTab === "editor"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Editor URL
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab("revisions")}
+                    className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors duration-200 cursor-pointer ${
+                      activeSubTab === "revisions"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    Revisions URL
+                  </button>
+                </div>
+              </div>
             )}
 
-            {activeTab === "questionnaire" && (
-              <QuestionnaireTab userData={userData} />
-            )}
+            {/* Tab content */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              {activeTab === "overview" && (
+                <OverviewTab
+                  userData={userData}
+                  projectPhases={projectPhases}
+                  projectCompletionPercentage={projectCompletionPercentage}
+                  domainInfo={domainInfo}
+                  setActiveTab={setActiveTab}
+                  exportClientData={exportClientData}
+                />
+              )}
 
-            {activeTab === "phases" && (
-              <ProjectPhasesTab
-                projectPhases={projectPhases}
-                updatePhaseStatus={updatePhaseStatus}
-                toggleTaskCompletion={toggleTaskCompletion}
-                addTask={addTask}
-                removeTask={removeTask}
-                saveChanges={saveChanges}
-                saving={saving}
-              />
-            )}
+              {activeTab === "domain" && (
+                <DomainTab
+                  userData={userData}
+                  domainInfo={domainInfo}
+                  updateDomainInfo={updateDomainInfo}
+                  showConfirmModal={showConfirmModal}
+                />
+              )}
 
-            {activeTab === "notes" && (
-              <NotesTab
-                clientNotes={clientNotes}
-                setClientNotes={setClientNotes}
-                isEditingNotes={isEditingNotes}
-                setIsEditingNotes={setIsEditingNotes}
-                saveClientNotes={saveClientNotes}
-                saving={saving}
-              />
-            )}
+              {activeTab === "website" && (
+                <WebsiteTab
+                  userData={userData}
+                  activeSubTab={activeSubTab}
+                  updateUserField={updateUserField}
+                />
+              )}
 
-            {activeTab === "analytics" && (
-              <AnalyticsTab
-                userData={userData}
-                projectCompletionPercentage={projectCompletionPercentage}
-              />
-            )}
+              {activeTab === "questionnaire" && (
+                <QuestionnaireTab userData={userData} />
+              )}
+
+              {activeTab === "phases" && (
+                <ProjectPhasesTab
+                  projectPhases={projectPhases}
+                  updatePhaseStatus={updatePhaseStatus}
+                  toggleTaskCompletion={toggleTaskCompletion}
+                  addTask={addTask}
+                  removeTask={removeTask}
+                  saveChanges={saveChanges}
+                  saving={saving}
+                />
+              )}
+
+              {activeTab === "notes" && (
+                <NotesTab
+                  clientNotes={clientNotes}
+                  setClientNotes={setClientNotes}
+                  isEditingNotes={isEditingNotes}
+                  setIsEditingNotes={setIsEditingNotes}
+                  saveClientNotes={saveClientNotes}
+                  saving={saving}
+                />
+              )}
+
+              {activeTab === "analytics" && (
+                <AnalyticsTab
+                  userData={userData}
+                  projectCompletionPercentage={projectCompletionPercentage}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>

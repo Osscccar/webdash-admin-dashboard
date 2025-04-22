@@ -38,7 +38,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
 }) => {
   return (
     <div
-      className={`fixed left-0 top-0 h-full z-20 transition-all duration-300 ease-in-out ${
+      className={`fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out ${
         sidebarOpen ? "w-72" : "w-20"
       }`}
     >
@@ -64,7 +64,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
           {sidebarOpen ? (
             <>
               <div className="flex items-center space-x-3">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center aspect-square">
                   <User className="h-8 w-8 text-blue-600" />
                 </div>
                 <div>
@@ -121,7 +121,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
             </>
           ) : (
             <div className="flex justify-center py-5">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center aspect-square">
                 <User className="h-6 w-6 text-blue-600" />
               </div>
             </div>
