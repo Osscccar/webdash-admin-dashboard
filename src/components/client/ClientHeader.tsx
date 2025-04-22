@@ -58,7 +58,7 @@ export const ClientHeader: React.FC<ClientHeaderProps> = ({
   saveChanges,
 }) => {
   return (
-    <div className="bg-white border-b border-gray-200 top-0 z-30 shadow-sm">
+    <div className="top-0 z-30 ">
       <div className="px-6 space-y-6 flex justify-between items-center">
         {/* Left section */}
         <div className="flex items-center space-x-4">
