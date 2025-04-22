@@ -8,7 +8,6 @@ import { db } from "@/lib/firebase";
 import type { UserData, ProjectPhase, TabType } from "@/types";
 
 // Components
-import { ClientHeader } from "@/components/client/ClientHeader";
 import { ClientSidebar } from "@/components/client/ClientSidebar";
 import { ConfirmationModal } from "@/components/client/ConfirmationModal";
 import { Toast } from "@/components/client/Toast";
@@ -481,27 +480,6 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
         title={confirmModal.title}
         message={confirmModal.message}
         type={confirmModal.type}
-      />
-
-      {/* Header */}
-      <ClientHeader
-        userData={userData}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        router={router}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        isSearchOpen={isSearchOpen}
-        setIsSearchOpen={setIsSearchOpen}
-        isExporting={isExporting}
-        exportClientData={exportClientData}
-        isNotificationsOpen={isNotificationsOpen}
-        setIsNotificationsOpen={setIsNotificationsOpen}
-        isUserMenuOpen={isUserMenuOpen}
-        setIsUserMenuOpen={setIsUserMenuOpen}
-        setActiveTab={setActiveTab}
-        saving={saving}
-        saveChanges={saveChanges}
       />
 
       {/* Main content */}

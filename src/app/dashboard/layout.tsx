@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LogOut } from "lucide-react";
 import logo from "../../../public/logo.webp";
 import Image from "next/image";
+import { ClientHeader } from "@/components/client/ClientHeader";
 
 export default function DashboardLayout({
   children,
@@ -57,6 +58,26 @@ export default function DashboardLayout({
           </button>
         </div>
       </header>
+      {/* Header */}
+      <ClientHeader
+        userData={userData}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        router={router}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isSearchOpen={isSearchOpen}
+        setIsSearchOpen={setIsSearchOpen}
+        isExporting={isExporting}
+        exportClientData={exportClientData}
+        isNotificationsOpen={isNotificationsOpen}
+        setIsNotificationsOpen={setIsNotificationsOpen}
+        isUserMenuOpen={isUserMenuOpen}
+        setIsUserMenuOpen={setIsUserMenuOpen}
+        setActiveTab={setActiveTab}
+        saving={saving}
+        saveChanges={saveChanges}
+      />
 
       {/* Main content */}
       <main className="flex-1">
