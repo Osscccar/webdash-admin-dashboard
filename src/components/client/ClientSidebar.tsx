@@ -67,7 +67,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
         {/* User Info */}
         <div
           className={`p-4 border-b border-gray-200 relative flex items-center transition-all duration-300 ${
-            sidebarOpen ? "mt-14" : "mt-4"
+            sidebarOpen ? "mt-30" : "mt-4"
           }`}
         >
           <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
