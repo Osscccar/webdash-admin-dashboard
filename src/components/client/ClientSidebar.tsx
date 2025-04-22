@@ -12,9 +12,8 @@ import {
   Download,
   Edit,
   User,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import type { UserData, TabType } from "@/types";
 
 interface ClientSidebarProps {
@@ -36,25 +35,48 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
   setSidebarOpen,
   exportClientData,
 }) => {
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle mouse enter - open sidebar with delay
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setSidebarOpen(true);
+    }, 200); // 200ms delay before opening
+  };
+
+  // Handle mouse leave - close sidebar with delay
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setSidebarOpen(false);
+    }, 300); // 300ms delay before closing (slightly longer to avoid accidental closing)
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div
+      ref={sidebarRef}
       className={`fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out ${
         sidebarOpen ? "w-72" : "w-20"
       }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="bg-white shadow-md h-full border-r border-gray-200 overflow-y-auto">
-        {/* Toggle sidebar button for desktop */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute -right-5 top-20 bg-blue-600 hover:bg-blue-700 rounded-full p-2 shadow-md text-white flex items-center justify-center z-10 h-10 w-10"
-        >
-          {sidebarOpen ? (
-            <ChevronLeft className="h-6 w-6" />
-          ) : (
-            <ChevronRight className="h-6 w-6" />
-          )}
-        </button>
-
         {/* Client info summary - Show full info when open, only icon when closed */}
         <div
           className={`p-5 border-b border-gray-200 mt-14 ${
