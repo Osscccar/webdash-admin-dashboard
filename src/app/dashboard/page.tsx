@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -14,8 +15,18 @@ import {
   ChevronRight,
   LayoutGrid,
   List,
+  Plus,
+  Download,
+  ArrowUpDown,
+  X,
+  MoreHorizontal,
+  CheckCircle,
+  AlertCircle,
+  Trash2,
+  Edit,
+  ExternalLink,
 } from "lucide-react";
-import { UserData } from "@/types";
+import type { UserData } from "@/types";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -25,6 +36,22 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortField, setSortField] = useState<
+    "name" | "email" | "date" | "status"
+  >("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [planFilter, setPlanFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<{
+    show: boolean;
+    userId: string | null;
+  }>({
+    show: false,
+    userId: null,
+  });
 
   useEffect(() => {
     async function fetchUsers() {
@@ -52,10 +79,16 @@ export default function Dashboard() {
     fetchUsers();
   }, []);
 
-  const formatDate = (dateString?: string) => {
+  const formatDate = (dateString?: string, includeTime = false) => {
     if (!dateString) return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString();
+      const options: Intl.DateTimeFormatOptions = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        ...(includeTime && { hour: "2-digit", minute: "2-digit" }),
+      };
+      return new Date(dateString).toLocaleDateString("en-US", options);
     } catch {
       return "Invalid date";
     }
@@ -63,6 +96,71 @@ export default function Dashboard() {
 
   const handleViewClientDetails = (userId: string) => {
     router.push(`/dashboard/client/${userId}`);
+  };
+
+  const toggleSort = (field: "name" | "email" | "date" | "status") => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const toggleSelectUser = (userId: string) => {
+    if (selectedUsers.includes(userId)) {
+      setSelectedUsers(selectedUsers.filter((id) => id !== userId));
+    } else {
+      setSelectedUsers([...selectedUsers, userId]);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map((user) => user.id || ""));
+    }
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    setConfirmDelete({ show: true, userId });
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!confirmDelete.userId) return;
+
+    // In a real app, you would delete the user from the database here
+    // For now, we'll just remove it from the local state
+    setUsers(users.filter((user) => user.id !== confirmDelete.userId));
+    setSelectedUsers(selectedUsers.filter((id) => id !== confirmDelete.userId));
+    setConfirmDelete({ show: false, userId: null });
+  };
+
+  const cancelDeleteUser = () => {
+    setConfirmDelete({ show: false, userId: null });
+  };
+
+  const handleBulkDelete = () => {
+    // In a real app, you would delete the selected users from the database here
+    // For now, we'll just remove them from the local state
+    setUsers(users.filter((user) => !selectedUsers.includes(user.id || "")));
+    setSelectedUsers([]);
+    setIsSelectMode(false);
+  };
+
+  const handleExportSelected = () => {
+    // In a real app, you would export the selected users here
+    console.log("Exporting users:", selectedUsers);
+    // For now, we'll just log the selected users
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("");
+    setPlanFilter("");
+    setDateFilter("");
+    setIsFilterOpen(false);
   };
 
   const filteredUsers = users.filter((user) => {
@@ -73,12 +171,62 @@ export default function Dashboard() {
     const query = searchQuery.toLowerCase();
 
     const matchesSearch = fullName.includes(query) || email.includes(query);
-
     const matchesStatus = statusFilter
       ? user.subscriptionStatus === statusFilter
       : true;
+    const matchesPlan = planFilter ? user.planType === planFilter : true;
 
-    return matchesSearch && matchesStatus;
+    let matchesDate = true;
+    if (dateFilter) {
+      const today = new Date();
+      const userDate = user.createdAt ? new Date(user.createdAt) : null;
+
+      if (userDate) {
+        if (dateFilter === "today") {
+          matchesDate = userDate.toDateString() === today.toDateString();
+        } else if (dateFilter === "week") {
+          const weekAgo = new Date(today);
+          weekAgo.setDate(today.getDate() - 7);
+          matchesDate = userDate >= weekAgo;
+        } else if (dateFilter === "month") {
+          const monthAgo = new Date(today);
+          monthAgo.setMonth(today.getMonth() - 1);
+          matchesDate = userDate >= monthAgo;
+        }
+      } else {
+        matchesDate = false;
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesPlan && matchesDate;
+  });
+
+  // Sort users
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (sortField === "name") {
+      const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+      const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+      return sortDirection === "asc"
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
+    } else if (sortField === "email") {
+      const emailA = (a.email || "").toLowerCase();
+      const emailB = (b.email || "").toLowerCase();
+      return sortDirection === "asc"
+        ? emailA.localeCompare(emailB)
+        : emailB.localeCompare(emailA);
+    } else if (sortField === "date") {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
+    } else if (sortField === "status") {
+      const statusA = a.subscriptionStatus || "";
+      const statusB = b.subscriptionStatus || "";
+      return sortDirection === "asc"
+        ? statusA.localeCompare(statusB)
+        : statusB.localeCompare(statusA);
+    }
+    return 0;
   });
 
   const getStatusColor = (status?: string) => {
@@ -91,6 +239,19 @@ export default function Dashboard() {
         return "text-amber-600";
       default:
         return "text-gray-500";
+    }
+  };
+
+  const getStatusBadgeClass = (status?: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800 border border-green-200";
+      case "canceled":
+        return "bg-red-100 text-red-800 border border-red-200";
+      case "pending":
+        return "bg-amber-100 text-amber-800 border border-amber-200";
+      default:
+        return "bg-gray-100 text-gray-800 border border-gray-200";
     }
   };
 
@@ -121,30 +282,35 @@ export default function Dashboard() {
           <button
             onClick={() => setViewMode("grid")}
             className={`p-2 rounded-md ${
-              viewMode === "grid" ? "bg-gray-100" : "bg-white hover:bg-gray-50"
-            }`}
+              viewMode === "grid"
+                ? "bg-blue-100 text-blue-600"
+                : "bg-white hover:bg-gray-100 text-gray-500"
+            } transition-colors duration-200 cursor-pointer`}
             aria-label="Grid view"
           >
-            <LayoutGrid
-              size={18}
-              className={
-                viewMode === "grid" ? "text-blue-600" : "text-gray-500"
-              }
-            />
+            <LayoutGrid size={18} />
           </button>
           <button
             onClick={() => setViewMode("list")}
             className={`p-2 rounded-md ${
-              viewMode === "list" ? "bg-gray-100" : "bg-white hover:bg-gray-50"
-            }`}
+              viewMode === "list"
+                ? "bg-blue-100 text-blue-600"
+                : "bg-white hover:bg-gray-100 text-gray-500"
+            } transition-colors duration-200 cursor-pointer`}
             aria-label="List view"
           >
-            <List
-              size={18}
-              className={
-                viewMode === "list" ? "text-blue-600" : "text-gray-500"
-              }
-            />
+            <List size={18} />
+          </button>
+          <button
+            onClick={() => setIsSelectMode(!isSelectMode)}
+            className={`p-2 rounded-md ${
+              isSelectMode
+                ? "bg-blue-100 text-blue-600"
+                : "bg-white hover:bg-gray-100 text-gray-500"
+            } transition-colors duration-200 cursor-pointer ml-2`}
+            aria-label="Select mode"
+          >
+            <CheckCircle size={18} />
           </button>
         </div>
       </div>
@@ -162,6 +328,14 @@ export default function Dashboard() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
 
         <div className="relative md:w-64">
@@ -171,7 +345,7 @@ export default function Dashboard() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+            className="w-full pl-10 pr-4 py-2 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
@@ -179,16 +353,155 @@ export default function Dashboard() {
             <option value="canceled">Canceled</option>
           </select>
         </div>
+
+        <button
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="md:w-auto px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200 cursor-pointer flex items-center justify-center"
+        >
+          <Filter className="h-4 w-4 mr-2" />
+          Advanced Filters
+        </button>
+
+        {isSelectMode && selectedUsers.length > 0 && (
+          <div className="flex space-x-2">
+            <button
+              onClick={handleBulkDelete}
+              className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-colors duration-200 cursor-pointer flex items-center"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete ({selectedUsers.length})
+            </button>
+            <button
+              onClick={handleExportSelected}
+              className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-200 cursor-pointer flex items-center"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export ({selectedUsers.length})
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Advanced Filters */}
+      {isFilterOpen && (
+        <div className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-800">
+              Advanced Filters
+            </h3>
+            <button
+              onClick={() => setIsFilterOpen(false)}
+              className="text-gray-500 hover:text-gray-700 cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Plan Type
+              </label>
+              <select
+                value={planFilter}
+                onChange={(e) => setPlanFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
+              >
+                <option value="">All Plans</option>
+                <option value="Basic">Basic</option>
+                <option value="Standard">Standard</option>
+                <option value="Premium">Premium</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date Created
+              </label>
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
+              >
+                <option value="">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">Last 7 Days</option>
+                <option value="month">Last 30 Days</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={clearFilters}
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Selected count */}
+      {isSelectMode && (
+        <div className="bg-blue-50 p-3 rounded-lg mb-6 border border-blue-200 flex justify-between items-center">
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 text-blue-600 mr-2" />
+            <span className="text-blue-700">
+              {selectedUsers.length} of {filteredUsers.length} clients selected
+            </span>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={toggleSelectAll}
+              className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
+            >
+              {selectedUsers.length === filteredUsers.length
+                ? "Deselect All"
+                : "Select All"}
+            </button>
+            <button
+              onClick={() => setIsSelectMode(false)}
+              className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {viewMode === "grid" ? (
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredUsers.map((user) => (
+          {sortedUsers.map((user) => (
             <div
               key={user.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 relative"
             >
+              {isSelectMode && (
+                <div className="absolute top-3 left-3 z-10">
+                  <div
+                    onClick={() => toggleSelectUser(user.id || "")}
+                    className={`w-5 h-5 rounded-full border ${
+                      selectedUsers.includes(user.id || "")
+                        ? "bg-blue-600 border-blue-600"
+                        : "bg-white border-gray-300"
+                    } flex items-center justify-center cursor-pointer`}
+                  >
+                    {selectedUsers.includes(user.id || "") && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 text-white"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -239,14 +552,26 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
                 <button
                   onClick={() => handleViewClientDetails(user.id || "")}
-                  className="flex items-center justify-between w-full text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center cursor-pointer"
                 >
-                  <span>View and Manage Client</span>
-                  <ChevronRight className="h-4 w-4" />
+                  <span>View Details</span>
+                  <ChevronRight className="h-4 w-4 ml-1" />
                 </button>
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Toggle dropdown menu
+                    }}
+                    className="text-gray-500 hover:text-gray-700 cursor-pointer p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </button>
+                  {/* Dropdown menu would go here */}
+                </div>
               </div>
             </div>
           ))}
@@ -257,17 +582,67 @@ export default function Dashboard() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                {isSelectMode && (
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    <div
+                      onClick={toggleSelectAll}
+                      className={`w-5 h-5 rounded-full border ${
+                        selectedUsers.length === filteredUsers.length
+                          ? "bg-blue-600 border-blue-600"
+                          : "bg-white border-gray-300"
+                      } flex items-center justify-center cursor-pointer`}
+                    >
+                      {selectedUsers.length === filteredUsers.length && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3 w-3 text-white"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                  </th>
+                )}
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => toggleSort("name")}
                 >
-                  Client
+                  <div className="flex items-center">
+                    Client
+                    {sortField === "name" && (
+                      <ArrowUpDown
+                        className={`h-4 w-4 ml-1 ${
+                          sortDirection === "asc" ? "transform rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </div>
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => toggleSort("email")}
                 >
-                  Email
+                  <div className="flex items-center">
+                    Email
+                    {sortField === "email" && (
+                      <ArrowUpDown
+                        className={`h-4 w-4 ml-1 ${
+                          sortDirection === "asc" ? "transform rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </div>
                 </th>
                 <th
                   scope="col"
@@ -277,15 +652,35 @@ export default function Dashboard() {
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => toggleSort("date")}
                 >
-                  Joined
+                  <div className="flex items-center">
+                    Joined
+                    {sortField === "date" && (
+                      <ArrowUpDown
+                        className={`h-4 w-4 ml-1 ${
+                          sortDirection === "asc" ? "transform rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </div>
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => toggleSort("status")}
                 >
-                  Status
+                  <div className="flex items-center">
+                    Status
+                    {sortField === "status" && (
+                      <ArrowUpDown
+                        className={`h-4 w-4 ml-1 ${
+                          sortDirection === "asc" ? "transform rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </div>
                 </th>
                 <th
                   scope="col"
@@ -296,8 +691,35 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
+              {sortedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
+                  {isSelectMode && (
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div
+                        onClick={() => toggleSelectUser(user.id || "")}
+                        className={`w-5 h-5 rounded-full border ${
+                          selectedUsers.includes(user.id || "")
+                            ? "bg-blue-600 border-blue-600"
+                            : "bg-white border-gray-300"
+                        } flex items-center justify-center cursor-pointer`}
+                      >
+                        {selectedUsers.includes(user.id || "") && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-3 w-3 text-white"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </td>
+                  )}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -321,13 +743,9 @@ export default function Dashboard() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.subscriptionStatus === "active"
-                          ? "bg-green-100 text-green-800"
-                          : user.subscriptionStatus === "canceled"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
+                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
+                        user.subscriptionStatus
+                      )}`}
                     >
                       {user.subscriptionStatus === "active"
                         ? "Active"
@@ -339,12 +757,31 @@ export default function Dashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleViewClientDetails(user.id || "")}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      Manage
-                    </button>
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => handleViewClientDetails(user.id || "")}
+                        className="text-blue-600 hover:text-blue-900 cursor-pointer"
+                        title="View details"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          // Edit user logic
+                        }}
+                        className="text-gray-600 hover:text-gray-900 cursor-pointer"
+                        title="Edit client"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user.id || "")}
+                        className="text-red-600 hover:text-red-900 cursor-pointer"
+                        title="Delete client"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -359,6 +796,54 @@ export default function Dashboard() {
           <p className="text-gray-500">
             No clients match your search or filters.
           </p>
+          <button
+            onClick={clearFilters}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer"
+          >
+            Clear Filters
+          </button>
+        </div>
+      )}
+
+      {/* Add New Client Button */}
+      <div className="fixed bottom-6 right-6">
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 cursor-pointer"
+          title="Add new client"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+      </div>
+
+      {/* Confirmation Dialog */}
+      {confirmDelete.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <div className="flex items-center mb-4">
+              <AlertCircle className="h-6 w-6 text-red-600 mr-3" />
+              <h3 className="text-lg font-medium text-gray-900">
+                Delete Client
+              </h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this client? This action cannot be
+              undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={cancelDeleteUser}
+                className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

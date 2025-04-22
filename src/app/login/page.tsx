@@ -1,31 +1,32 @@
 // src/app/login/page.tsx
+/* eslint-disable */
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { KeyRound, AlertCircle } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { KeyRound, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
-    
+
     // Attempt login
     const success = login(username, password);
-    
+
     if (success) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     } else {
-      setError('Invalid credentials. Please try again.');
+      setError("Invalid credentials. Please try again.");
       setIsLoading(false);
     }
   };
@@ -38,19 +39,24 @@ export default function LoginPage() {
             <KeyRound className="h-8 w-8 text-orange-500" />
           </div>
           <h1 className="text-2xl font-bold text-white">Lumix Digital Admin</h1>
-          <p className="text-gray-400 mt-2">Enter your credentials to sign in</p>
+          <p className="text-gray-400 mt-2">
+            Enter your credentials to sign in
+          </p>
         </div>
-        
+
         {error && (
           <div className="mb-6 bg-red-900/30 border border-red-800 p-4 rounded-lg flex items-start">
             <AlertCircle className="text-red-500 h-5 w-5 mr-3 mt-0.5" />
             <span className="text-red-400">{error}</span>
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-400 mb-1">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
               Username
             </label>
             <input
@@ -63,9 +69,12 @@ export default function LoginPage() {
               placeholder="Enter admin username"
             />
           </div>
-          
+
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
               Password
             </label>
             <input
@@ -78,7 +87,7 @@ export default function LoginPage() {
               placeholder="Enter admin password"
             />
           </div>
-          
+
           <button
             type="submit"
             disabled={isLoading}

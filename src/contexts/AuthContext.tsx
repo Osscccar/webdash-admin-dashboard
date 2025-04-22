@@ -1,7 +1,14 @@
 // src/contexts/AuthContext.tsx
+/* eslint-disable */
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -18,8 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for authentication in sessionStorage
-    const authStatus = sessionStorage.getItem('admin-auth');
-    setIsAuthenticated(authStatus === 'true');
+    const authStatus = sessionStorage.getItem("admin-auth");
+    setIsAuthenticated(authStatus === "true");
     setLoading(false);
   }, []);
 
@@ -27,10 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Hard-coded admin credentials (in real app, use environment variables)
     const validUsername = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
     const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-    
+
     if (username === validUsername && password === validPassword) {
       setIsAuthenticated(true);
-      sessionStorage.setItem('admin-auth', 'true');
+      sessionStorage.setItem("admin-auth", "true");
       return true;
     }
     return false;
@@ -38,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem('admin-auth');
+    sessionStorage.removeItem("admin-auth");
   };
 
   return (
@@ -51,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

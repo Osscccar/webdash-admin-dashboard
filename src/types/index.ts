@@ -1,5 +1,15 @@
 // src/types/index.ts
 
+// Tab type definition to be used across components
+export type TabType =
+  | "overview"
+  | "domain"
+  | "website"
+  | "questionnaire"
+  | "phases"
+  | "notes"
+  | "analytics";
+
 // Project Phase types
 export interface ProjectPhase {
   name: string;
@@ -30,25 +40,15 @@ export interface UserData {
   projectPhases?: ProjectPhase[]; // Added project phases to the user data type
   websiteUrl?: string; // Live URL for the customer's website
   websitePreviewUrl?: string; // URL for website preview image
-  feedbackMessages?: FeedbackMessage[];
   editorUrl?: string;
   revisionsUrl?: string;
+  notes?: string; // Added notes field for client notes feature
   // Reminder questionnaire stuff
   questionnairePostponed?: boolean;
   questionnaireReminderStatus?: string;
   firstReminderTime?: string;
   secondReminderTime?: string;
-}
-
-export interface FeedbackMessage {
-  text: string;
-  timestamp: string;
-  isFromClient: boolean;
-  isRead: boolean;
-  userId: string;
-  userEmail?: string;
-  userName?: string;
-  adminName?: string;
+  websitePublishedDate?: string; // Date when the website was published (used in analytics)
 }
 
 // For file uploads
