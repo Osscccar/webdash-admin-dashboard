@@ -1,5 +1,6 @@
 // src/app/dashboard/client/[id]/page.tsx
-import ClientDetail from './client-detail';
+
+import ClientDetail from "./client-detail";
 
 export default async function ClientPage({
   params,
