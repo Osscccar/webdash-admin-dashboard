@@ -2,17 +2,13 @@
 /* eslint-disable */
 "use client";
 
+import type React from "react";
+
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import {
-  UserData,
-  ProjectPhase,
-  FileUpload,
-  WebsiteEntry,
-  DomainInfo,
-} from "@/types";
+import type { UserData, ProjectPhase, FileUpload, WebsiteEntry } from "@/types";
 import {
   ArrowLeft,
   Save,
@@ -35,10 +31,10 @@ import {
   Activity,
   AlertTriangle,
   Info,
-  Link,
   ExternalLink,
   Database,
   Calendar,
+  CheckCircle2,
 } from "lucide-react";
 import Image from "next/image";
 import { DownloadButton } from "@/components/DownloadButton";
@@ -89,7 +85,7 @@ const renderQuestionnaireField = (
     | FileUpload[]
     | null
     | undefined,
-  defaultValue: string = "Not provided"
+  defaultValue = "Not provided"
 ): React.ReactNode => {
   if (field === null || field === undefined) {
     return defaultValue;
@@ -484,15 +480,15 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   if (!userData) {
     return (
-      <div className="bg-red-900/30 border border-red-800 p-4 rounded-lg">
-        <p className="text-red-400">Client not found</p>
+      <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+        <p className="text-red-600">Client not found</p>
       </div>
     );
   }
@@ -509,32 +505,32 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   const domainInfo = parseDomainValue(domainValue as string);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gray-50 p-6 rounded-xl">
       {/* Header with back button and client name */}
-      <div className="flex justify-between items-center bg-gray-800 rounded-xl p-4 border border-gray-700">
+      <div className="flex justify-between items-center bg-white rounded-xl p-4 shadow-sm">
         <div className="flex items-center">
           <button
             onClick={() => router.push("/dashboard")}
-            className="flex items-center text-gray-300 hover:text-white mr-4"
+            className="flex items-center text-gray-500 hover:text-gray-700 mr-4"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
             <span className="hidden md:inline">Back</span>
           </button>
 
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-white">
+            <h1 className="text-xl md:text-2xl font-medium text-gray-800">
               {userData.firstName} {userData.lastName}
             </h1>
-            <div className="flex items-center text-sm text-gray-400">
+            <div className="flex items-center text-sm text-gray-500">
               <span className="mr-2">{userData.email}</span>
               <span className="mx-2">•</span>
               <span
                 className={`${
                   userData.subscriptionStatus === "active"
-                    ? "text-green-400"
+                    ? "text-green-600"
                     : userData.subscriptionStatus === "canceled"
-                    ? "text-red-400"
-                    : "text-yellow-400"
+                    ? "text-red-600"
+                    : "text-amber-600"
                 }`}
               >
                 {userData.planType || "Standard"} (
@@ -547,7 +543,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
         <button
           onClick={saveChanges}
           disabled={saving}
-          className="flex items-center bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition duration-200 disabled:opacity-70"
+          className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 disabled:opacity-70"
         >
           {saving ? (
             <>
@@ -565,28 +561,28 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
       {/* Success and error messages */}
       {success && (
-        <div className="bg-green-900/30 border border-green-800 p-4 rounded-lg flex items-center">
-          <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
-          <p className="text-green-400">{success}</p>
+        <div className="bg-green-50 border border-green-200 p-4 rounded-lg flex items-center">
+          <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+          <p className="text-green-700">{success}</p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-900/30 border border-red-800 p-4 rounded-lg flex items-center">
-          <AlertTriangle className="h-5 w-5 text-red-400 mr-2" />
-          <p className="text-red-400">{error}</p>
+        <div className="bg-red-50 border border-red-200 p-4 rounded-lg flex items-center">
+          <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
+          <p className="text-red-600">{error}</p>
         </div>
       )}
 
       {/* Main Navigation */}
-      <div className="bg-gray-800 rounded-xl overflow-x-auto border border-gray-700">
+      <div className="bg-white rounded-xl overflow-x-auto shadow-sm">
         <div className="min-w-max p-2 flex">
           <button
             onClick={() => setActiveTab("overview")}
             className={`px-4 py-2 rounded-lg mr-2 flex items-center ${
               activeTab === "overview"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             <Activity className="h-4 w-4 mr-2" />
@@ -596,8 +592,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             onClick={() => setActiveTab("domain")}
             className={`px-4 py-2 rounded-lg mr-2 flex items-center ${
               activeTab === "domain"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             <Globe className="h-4 w-4 mr-2" />
@@ -607,8 +603,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             onClick={() => setActiveTab("website")}
             className={`px-4 py-2 rounded-lg mr-2 flex items-center ${
               activeTab === "website"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             <Code className="h-4 w-4 mr-2" />
@@ -618,8 +614,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             onClick={() => setActiveTab("questionnaire")}
             className={`px-4 py-2 rounded-lg mr-2 flex items-center ${
               activeTab === "questionnaire"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             <FileText className="h-4 w-4 mr-2" />
@@ -629,8 +625,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             onClick={() => setActiveTab("phases")}
             className={`px-4 py-2 rounded-lg mr-2 flex items-center ${
               activeTab === "phases"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             <Layers className="h-4 w-4 mr-2" />
@@ -640,8 +636,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             onClick={() => setActiveTab("feedback")}
             className={`px-4 py-2 rounded-lg flex items-center ${
               activeTab === "feedback"
-                ? "bg-orange-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             <MessageSquare className="h-4 w-4 mr-2" />
@@ -657,14 +653,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
       {/* Website Tab - Sub Navigation */}
       {activeTab === "website" && (
-        <div className="bg-gray-800 border-b border-gray-700 rounded-t-xl overflow-x-auto">
-          <div className="flex p-2 border-t border-l border-r border-gray-700 rounded-t-xl">
+        <div className="bg-white rounded-t-xl overflow-x-auto shadow-sm">
+          <div className="flex p-2">
             <button
               onClick={() => setActiveSubTab("preview")}
               className={`px-4 py-2 rounded-lg mr-2 ${
                 activeSubTab === "preview"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               Preview Image
@@ -673,8 +669,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               onClick={() => setActiveSubTab("liveUrl")}
               className={`px-4 py-2 rounded-lg mr-2 ${
                 activeSubTab === "liveUrl"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               Live URL
@@ -683,8 +679,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               onClick={() => setActiveSubTab("editor")}
               className={`px-4 py-2 rounded-lg mr-2 ${
                 activeSubTab === "editor"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               Editor URL
@@ -693,8 +689,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               onClick={() => setActiveSubTab("revisions")}
               className={`px-4 py-2 rounded-lg ${
                 activeSubTab === "revisions"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               Revisions URL
@@ -707,35 +703,35 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
       {activeTab === "overview" && (
         <div className="space-y-6">
           {/* Client Overview Card */}
-          <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-              <Users className="h-5 w-5 mr-2 text-orange-500" />
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-medium text-gray-800 mb-6 flex items-center">
+              <Users className="h-5 w-5 mr-2 text-blue-600" />
               Client Overview
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Basic Information */}
-              <div className="bg-gray-700/30 p-4 rounded-lg space-y-4">
-                <h3 className="text-md font-medium text-white border-b border-gray-600 pb-2">
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="text-md font-medium text-gray-700 border-b border-gray-200 pb-2">
                   Basic Information
                 </h3>
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-gray-400 text-sm">Full Name</p>
-                    <p className="text-white font-medium">
+                    <p className="text-gray-500 text-sm">Full Name</p>
+                    <p className="text-gray-800 font-medium">
                       {userData.firstName} {userData.lastName}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-400 text-sm">Email</p>
-                    <p className="text-white">{userData.email}</p>
+                    <p className="text-gray-500 text-sm">Email</p>
+                    <p className="text-gray-800">{userData.email}</p>
                   </div>
 
                   <div>
-                    <p className="text-gray-400 text-sm">Phone</p>
-                    <p className="text-white">
+                    <p className="text-gray-500 text-sm">Phone</p>
+                    <p className="text-gray-800">
                       {userData.phoneNumber || "Not provided"}
                     </p>
                   </div>
@@ -743,35 +739,35 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Subscription Details */}
-              <div className="bg-gray-700/30 p-4 rounded-lg space-y-4">
-                <h3 className="text-md font-medium text-white border-b border-gray-600 pb-2">
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="text-md font-medium text-gray-700 border-b border-gray-200 pb-2">
                   Subscription Details
                 </h3>
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-gray-400 text-sm">Plan Type</p>
-                    <p className="text-white font-medium">
+                    <p className="text-gray-500 text-sm">Plan Type</p>
+                    <p className="text-gray-800 font-medium">
                       {userData.planType || "Standard"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-400 text-sm">Billing Cycle</p>
-                    <p className="text-white">
+                    <p className="text-gray-500 text-sm">Billing Cycle</p>
+                    <p className="text-gray-800">
                       {userData.billingCycle || "Monthly"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-400 text-sm">Subscription Status</p>
+                    <p className="text-gray-500 text-sm">Subscription Status</p>
                     <p
                       className={`font-medium ${
                         userData.subscriptionStatus === "active"
-                          ? "text-green-400"
+                          ? "text-green-600"
                           : userData.subscriptionStatus === "canceled"
-                          ? "text-red-400"
-                          : "text-yellow-400"
+                          ? "text-red-600"
+                          : "text-amber-600"
                       }`}
                     >
                       {userData.subscriptionStatus === "active"
@@ -787,39 +783,39 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Website Details Summary */}
-              <div className="bg-gray-700/30 p-4 rounded-lg space-y-4">
-                <h3 className="text-md font-medium text-white border-b border-gray-600 pb-2">
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="text-md font-medium text-gray-700 border-b border-gray-200 pb-2">
                   Website Status
                 </h3>
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-gray-400 text-sm">Domain Name</p>
+                    <p className="text-gray-500 text-sm">Domain Name</p>
                     <div className="flex items-center">
                       {domainInfo.name ? (
                         <>
-                          <Globe className="h-4 w-4 text-orange-500 mr-2" />
-                          <p className="text-white">{domainInfo.name}</p>
+                          <Globe className="h-4 w-4 text-blue-600 mr-2" />
+                          <p className="text-gray-800">{domainInfo.name}</p>
                           <span
                             className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
                               domainInfo.isCustom
-                                ? "bg-blue-900/30 text-blue-400 border border-blue-800"
-                                : "bg-green-900/30 text-green-400 border border-green-800"
+                                ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                : "bg-green-100 text-green-700 border border-green-200"
                             }`}
                           >
                             {domainInfo.isCustom
-                              ? "Provided Domain (They already have a domain)"
-                              : "Custom Domain (We supply this domain)"}
+                              ? "Client's Own Domain"
+                              : "Free Domain"}
                           </span>
                         </>
                       ) : (
-                        <p className="text-gray-400">No domain selected</p>
+                        <p className="text-gray-500">No domain selected</p>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-gray-400 text-sm">Live Website</p>
+                    <p className="text-gray-500 text-sm">Live Website</p>
                     {userData.websiteUrl ? (
                       <a
                         href={
@@ -829,23 +825,23 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:underline flex items-center"
+                        className="text-blue-600 hover:underline flex items-center"
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         {userData.websiteUrl}
                       </a>
                     ) : (
-                      <p className="text-gray-400">Not published yet</p>
+                      <p className="text-gray-500">Not published yet</p>
                     )}
                   </div>
 
                   <div>
-                    <p className="text-gray-400 text-sm">Completion Status</p>
+                    <p className="text-gray-500 text-sm">Completion Status</p>
                     {projectPhases.length > 0 ? (
                       <div className="flex items-center">
-                        <div className="w-full bg-gray-600 rounded-full h-2.5 mr-2">
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
                           <div
-                            className="bg-orange-500 h-2.5 rounded-full"
+                            className="bg-blue-600 h-2.5 rounded-full"
                             style={{
                               width: `${
                                 (projectPhases.filter(
@@ -857,7 +853,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                             }}
                           ></div>
                         </div>
-                        <span className="text-white text-sm">
+                        <span className="text-gray-800 text-sm">
                           {Math.round(
                             (projectPhases.filter(
                               (phase) => phase.status === "completed"
@@ -869,26 +865,26 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         </span>
                       </div>
                     ) : (
-                      <p className="text-gray-400">No project phases defined</p>
+                      <p className="text-gray-500">No project phases defined</p>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Recent Activity */}
-              <div className="bg-gray-700/30 p-4 rounded-lg space-y-4">
-                <h3 className="text-md font-medium text-white border-b border-gray-600 pb-2">
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="text-md font-medium text-gray-700 border-b border-gray-200 pb-2">
                   Recent Activity
                 </h3>
 
                 <div className="space-y-3">
                   <div className="flex items-start">
-                    <div className="bg-gray-600 rounded-full p-1.5 mr-3 mt-0.5">
-                      <Calendar className="h-3.5 w-3.5 text-orange-400" />
+                    <div className="bg-blue-100 rounded-full p-1.5 mr-3 mt-0.5">
+                      <Calendar className="h-3.5 w-3.5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-white text-sm">Account Created</p>
-                      <p className="text-gray-400 text-xs">
+                      <p className="text-gray-800 text-sm">Account Created</p>
+                      <p className="text-gray-500 text-xs">
                         {userData.createdAt
                           ? new Date(userData.createdAt).toLocaleDateString(
                               "en-US",
@@ -904,12 +900,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   </div>
 
                   <div className="flex items-start">
-                    <div className="bg-gray-600 rounded-full p-1.5 mr-3 mt-0.5">
-                      <Calendar className="h-3.5 w-3.5 text-orange-400" />
+                    <div className="bg-blue-100 rounded-full p-1.5 mr-3 mt-0.5">
+                      <Calendar className="h-3.5 w-3.5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-white text-sm">Last Updated</p>
-                      <p className="text-gray-400 text-xs">
+                      <p className="text-gray-800 text-sm">Last Updated</p>
+                      <p className="text-gray-500 text-xs">
                         {userData.updatedAt
                           ? new Date(userData.updatedAt).toLocaleDateString(
                               "en-US",
@@ -929,12 +925,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   {userData.feedbackMessages &&
                     userData.feedbackMessages.length > 0 && (
                       <div className="flex items-start">
-                        <div className="bg-gray-600 rounded-full p-1.5 mr-3 mt-0.5">
-                          <MessageSquare className="h-3.5 w-3.5 text-orange-400" />
+                        <div className="bg-blue-100 rounded-full p-1.5 mr-3 mt-0.5">
+                          <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-white text-sm">Latest Feedback</p>
-                          <p className="text-gray-400 text-xs">
+                          <p className="text-gray-800 text-sm">
+                            Latest Feedback
+                          </p>
+                          <p className="text-gray-500 text-xs">
                             {new Date(
                               userData.feedbackMessages[
                                 userData.feedbackMessages.length - 1
@@ -958,25 +956,25 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={() => setActiveTab("phases")}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex items-center justify-center"
+                className="bg-white hover:bg-gray-50 text-gray-800 p-3 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm"
               >
-                <Layers className="h-5 w-5 mr-2 text-orange-500" />
+                <Layers className="h-5 w-5 mr-2 text-blue-600" />
                 Manage Project Phases
               </button>
 
               <button
                 onClick={() => setActiveTab("domain")}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex items-center justify-center"
+                className="bg-white hover:bg-gray-50 text-gray-800 p-3 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm"
               >
-                <Globe className="h-5 w-5 mr-2 text-orange-500" />
+                <Globe className="h-5 w-5 mr-2 text-blue-600" />
                 Manage Domain
               </button>
 
               <button
                 onClick={() => setActiveTab("website")}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex items-center justify-center"
+                className="bg-white hover:bg-gray-50 text-gray-800 p-3 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm"
               >
-                <Code className="h-5 w-5 mr-2 text-orange-500" />
+                <Code className="h-5 w-5 mr-2 text-blue-600" />
                 Manage Website
               </button>
             </div>
@@ -986,42 +984,42 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
       {/* Domain Tab Content */}
       {activeTab === "domain" && (
-        <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-            <Globe className="h-5 w-5 mr-2 text-orange-500" />
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-xl font-medium text-gray-800 mb-6 flex items-center">
+            <Globe className="h-5 w-5 mr-2 text-blue-600" />
             Domain Management
           </h2>
 
           {/* Current Domain Information */}
-          <div className="bg-gray-700/30 p-6 rounded-lg mb-6">
-            <h3 className="text-lg font-medium text-white mb-4">
+          <div className="bg-gray-50 p-6 rounded-lg mb-6">
+            <h3 className="text-lg font-medium text-gray-700 mb-4">
               Current Domain
             </h3>
 
             {domainInfo.name ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                   <div className="flex items-center">
-                    <Globe className="h-6 w-6 text-orange-500 mr-3" />
+                    <Globe className="h-6 w-6 text-blue-600 mr-3" />
                     <div>
-                      <p className="text-lg font-medium text-white">
+                      <p className="text-lg font-medium text-gray-800">
                         {domainInfo.name}
                       </p>
                       <div className="flex items-center mt-1">
                         <span
                           className={`text-xs px-2 py-0.5 rounded-full ${
                             domainInfo.isCustom
-                              ? "bg-blue-900/30 text-blue-400 border border-blue-800"
-                              : "bg-green-900/30 text-green-400 border border-green-800"
+                              ? "bg-blue-100 text-blue-700 border border-blue-200"
+                              : "bg-green-100 text-green-700 border border-green-200"
                           }`}
                         >
                           {domainInfo.isCustom
-                            ? "Clients Own Domain"
+                            ? "Client's Own Domain"
                             : "Free Domain (Included)"}
                         </span>
 
                         {userData.questionnaireAnswers?.domainProvider && (
-                          <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300 border border-gray-600">
+                          <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
                             Provider:{" "}
                             {userData.questionnaireAnswers.domainProvider}
                           </span>
@@ -1039,7 +1037,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         updateDomainInfo("", false);
                       }
                     }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm"
+                    className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-lg text-sm"
                   >
                     Remove
                   </button>
@@ -1047,8 +1045,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                 {/* Domain provider info */}
                 {domainInfo.isCustom && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                    <h4 className="text-md font-medium text-white mb-3">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <h4 className="text-md font-medium text-gray-700 mb-3">
                       Domain Provider - this is off the questionnaire
                     </h4>
 
@@ -1061,7 +1059,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           (userData.questionnaireAnswers
                             ?.domainProvider as string) || ""
                         }
-                        className="flex-1 bg-gray-700 border border-gray-600 rounded-l-lg px-3 py-2 text-white"
+                        className="flex-1 bg-white border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
                         onClick={() => {
@@ -1075,13 +1073,13 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                             provider
                           );
                         }}
-                        className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg"
                       >
                         Update Provider
                       </button>
                     </div>
 
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-gray-500 mt-2">
                       Enter the company where the client's domain is registered.
                       This helps with DNS configuration later.
                     </p>
@@ -1089,12 +1087,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 )}
               </div>
             ) : (
-              <div className="text-center py-6 bg-gray-800/50 border border-gray-700 rounded-lg">
-                <Globe className="h-12 w-12 text-gray-500 mx-auto mb-3" />
-                <h4 className="text-md font-medium text-white mb-1">
+              <div className="text-center py-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <Globe className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <h4 className="text-md font-medium text-gray-700 mb-1">
                   No Domain Set
                 </h4>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-sm text-gray-500 mb-4">
                   This client does not have a domain set up yet.
                 </p>
               </div>
@@ -1102,8 +1100,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
           </div>
 
           {/* Add/Update Domain */}
-          <div className="bg-gray-700/30 p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-white mb-4">
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-medium text-gray-700 mb-4">
               {domainInfo.name ? "Update Domain" : "Add Domain"}
             </h3>
 
@@ -1114,8 +1112,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   id="free-domain-tab"
                   className={`px-4 py-2 rounded-t-lg border-t border-l border-r ${
                     !domainInfo.isCustom
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-gray-800 text-gray-400 border-gray-700"
+                      ? "bg-white text-gray-800 border-gray-300"
+                      : "bg-gray-100 text-gray-500 border-gray-200"
                   }`}
                   onClick={() => {
                     document
@@ -1127,30 +1125,30 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     document
                       .getElementById("free-domain-tab")
                       ?.classList.add(
-                        "bg-gray-700",
-                        "text-white",
-                        "border-gray-600"
+                        "bg-white",
+                        "text-gray-800",
+                        "border-gray-300"
                       );
                     document
                       .getElementById("free-domain-tab")
                       ?.classList.remove(
-                        "bg-gray-800",
-                        "text-gray-400",
-                        "border-gray-700"
+                        "bg-gray-100",
+                        "text-gray-500",
+                        "border-gray-200"
                       );
                     document
                       .getElementById("custom-domain-tab")
                       ?.classList.add(
-                        "bg-gray-800",
-                        "text-gray-400",
-                        "border-gray-700"
+                        "bg-gray-100",
+                        "text-gray-500",
+                        "border-gray-200"
                       );
                     document
                       .getElementById("custom-domain-tab")
                       ?.classList.remove(
-                        "bg-gray-700",
-                        "text-white",
-                        "border-gray-600"
+                        "bg-white",
+                        "text-gray-800",
+                        "border-gray-300"
                       );
                   }}
                 >
@@ -1160,8 +1158,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   id="custom-domain-tab"
                   className={`px-4 py-2 rounded-t-lg border-t border-l border-r ${
                     domainInfo.isCustom
-                      ? "bg-gray-700 text-white border-gray-600"
-                      : "bg-gray-800 text-gray-400 border-gray-700"
+                      ? "bg-white text-gray-800 border-gray-300"
+                      : "bg-gray-100 text-gray-500 border-gray-200"
                   }`}
                   onClick={() => {
                     document
@@ -1173,30 +1171,30 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     document
                       .getElementById("custom-domain-tab")
                       ?.classList.add(
-                        "bg-gray-700",
-                        "text-white",
-                        "border-gray-600"
+                        "bg-white",
+                        "text-gray-800",
+                        "border-gray-300"
                       );
                     document
                       .getElementById("custom-domain-tab")
                       ?.classList.remove(
-                        "bg-gray-800",
-                        "text-gray-400",
-                        "border-gray-700"
+                        "bg-gray-100",
+                        "text-gray-500",
+                        "border-gray-200"
                       );
                     document
                       .getElementById("free-domain-tab")
                       ?.classList.add(
-                        "bg-gray-800",
-                        "text-gray-400",
-                        "border-gray-700"
+                        "bg-gray-100",
+                        "text-gray-500",
+                        "border-gray-200"
                       );
                     document
                       .getElementById("free-domain-tab")
                       ?.classList.remove(
-                        "bg-gray-700",
-                        "text-white",
-                        "border-gray-600"
+                        "bg-white",
+                        "text-gray-800",
+                        "border-gray-300"
                       );
                   }}
                 >
@@ -1207,14 +1205,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               {/* Free Domain Content */}
               <div
                 id="free-domain-content"
-                className={`border border-gray-600 bg-gray-700 rounded-b-lg rounded-tr-lg p-4 ${
+                className={`border border-gray-300 bg-white rounded-b-lg rounded-tr-lg p-4 shadow-sm ${
                   domainInfo.isCustom ? "hidden" : ""
                 }`}
               >
                 <div className="mb-4">
                   <label
                     htmlFor="free-domain"
-                    className="block text-sm font-medium text-gray-300 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     Domain Name
                   </label>
@@ -1223,9 +1221,9 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     id="free-domain"
                     placeholder="Enter domain name (e.g., example.com)"
                     defaultValue={!domainInfo.isCustom ? domainInfo.name : ""}
-                    className="w-full bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Enter the domain name that was selected from our domain
                     registration tool.
                   </p>
@@ -1243,7 +1241,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       setError("Please enter a valid domain name");
                     }
                   }}
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg w-full"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full"
                 >
                   {domainInfo.name && !domainInfo.isCustom
                     ? "Update Domain"
@@ -1254,14 +1252,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               {/* Custom Domain Content */}
               <div
                 id="custom-domain-content"
-                className={`border border-gray-600 bg-gray-700 rounded-b-lg rounded-tr-lg p-4 ${
+                className={`border border-gray-300 bg-white rounded-b-lg rounded-tr-lg p-4 shadow-sm ${
                   !domainInfo.isCustom ? "hidden" : ""
                 }`}
               >
                 <div className="mb-4">
                   <label
                     htmlFor="custom-domain"
-                    className="block text-sm font-medium text-gray-300 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     Client's Domain Name
                   </label>
@@ -1270,9 +1268,9 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     id="custom-domain"
                     placeholder="Enter client's domain (e.g., example.com)"
                     defaultValue={domainInfo.isCustom ? domainInfo.name : ""}
-                    className="w-full bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Enter the domain name that the client already owns.
                   </p>
                 </div>
@@ -1280,7 +1278,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 <div className="mb-4">
                   <label
                     htmlFor="domain-provider-input"
-                    className="block text-sm font-medium text-gray-300 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     Domain Provider
                   </label>
@@ -1292,9 +1290,9 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       (userData.questionnaireAnswers
                         ?.domainProvider as string) || ""
                     }
-                    className="w-full bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Enter the company where the client's domain is registered.
                   </p>
                 </div>
@@ -1316,7 +1314,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       setError("Please enter a valid domain name");
                     }
                   }}
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg w-full"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full"
                 >
                   {domainInfo.name && domainInfo.isCustom
                     ? "Update Domain"
@@ -1327,14 +1325,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
           </div>
 
           {/* Domain Management Tips */}
-          <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-4 mt-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
             <div className="flex items-start">
-              <Info className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+              <Info className="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="text-blue-400 font-medium mb-1">
+                <h4 className="text-blue-700 font-medium mb-1">
                   Domain Management Tips
                 </h4>
-                <ul className="text-sm text-blue-300 space-y-1 list-disc pl-5">
+                <ul className="text-sm text-blue-600 space-y-1 list-disc pl-5">
                   <li>
                     For client-owned domains, you'll need to update the DNS
                     settings at their domain provider.
@@ -1358,34 +1356,34 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
         <>
           {/* Website Preview Management */}
           {activeSubTab === "preview" && (
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-                <Code className="h-5 w-5 mr-2 text-orange-500" />
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-medium text-gray-800 mb-4 flex items-center">
+                <Code className="h-5 w-5 mr-2 text-blue-600" />
                 Website Preview Image
               </h2>
 
               <div className="space-y-6">
                 {/* Current preview */}
                 {userData.websitePreviewUrl ? (
-                  <div className="bg-gray-700/30 p-4 rounded-lg">
-                    <p className="text-sm text-gray-400 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-3 font-medium">
                       Current Website Preview
                     </p>
                     <div
-                      className="relative rounded-lg overflow-hidden"
+                      className="relative rounded-lg overflow-hidden shadow-sm"
                       style={{ maxHeight: "400px" }}
                     >
                       <img
-                        src={userData.websitePreviewUrl}
+                        src={userData.websitePreviewUrl || "/placeholder.svg"}
                         alt="Website Preview"
                         className="w-full h-auto"
                       />
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-gray-700/30 p-6 rounded-lg flex items-center justify-center">
+                  <div className="bg-gray-50 p-6 rounded-lg flex items-center justify-center">
                     <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="h-8 w-8 text-gray-400"
@@ -1401,7 +1399,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           />
                         </svg>
                       </div>
-                      <p className="text-gray-400 mb-2">
+                      <p className="text-gray-600 mb-2">
                         No website preview image set
                       </p>
                       <p className="text-xs text-gray-500 max-w-md">
@@ -1413,8 +1411,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 )}
 
                 {/* Update preview URL */}
-                <div className="bg-gray-700/30 p-4 rounded-lg">
-                  <p className="text-sm text-gray-300 mb-3 font-medium">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-700 mb-3 font-medium">
                     Update Website Preview URL
                   </p>
                   <div className="flex">
@@ -1422,7 +1420,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       type="text"
                       placeholder="Enter image URL"
                       defaultValue={userData.websitePreviewUrl || ""}
-                      className="flex-1 bg-gray-600 border border-gray-500 rounded-l-lg px-3 py-2 text-white"
+                      className="flex-1 bg-white border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       id="website-preview-url"
                     />
                     <button
@@ -1442,12 +1440,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           setError("Please enter a valid URL");
                         }
                       }}
-                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg"
                     >
                       Update
                     </button>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Paste a direct link to an image file (JPG, PNG, WEBP). The
                     image should be at least 1200x800 pixels.
                   </p>
@@ -1455,8 +1453,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                 {/* Remove preview */}
                 {userData.websitePreviewUrl && (
-                  <div className="bg-gray-700/30 p-4 rounded-lg">
-                    <p className="text-sm text-gray-300 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3 font-medium">
                       Remove Preview Image
                     </p>
                     <button
@@ -1467,7 +1465,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           "Website preview image removed"
                         )
                       }
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                      className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg"
                     >
                       Remove Preview Image
                     </button>
@@ -1479,21 +1477,21 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
           {/* Website URL Management */}
           {activeSubTab === "liveUrl" && (
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-                <Globe className="h-5 w-5 mr-2 text-orange-500" />
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-medium text-gray-800 mb-4 flex items-center">
+                <Globe className="h-5 w-5 mr-2 text-blue-600" />
                 Live Website URL
               </h2>
 
               <div className="space-y-6">
                 {/* Current website URL */}
                 {userData.websiteUrl ? (
-                  <div className="bg-gray-700/30 p-4 rounded-lg">
-                    <p className="text-sm text-gray-300 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3 font-medium">
                       Current Live Website URL
                     </p>
-                    <div className="flex items-center bg-gray-800/50 p-3 rounded-lg">
-                      <Globe className="h-5 w-5 text-orange-500 mr-3" />
+                    <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <Globe className="h-5 w-5 text-blue-600 mr-3" />
                       <a
                         href={
                           userData.websiteUrl.startsWith("http")
@@ -1502,7 +1500,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:underline"
+                        className="text-blue-600 hover:underline"
                       >
                         {userData.websiteUrl}
                       </a>
@@ -1512,12 +1510,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-gray-700/30 p-6 rounded-lg flex items-center justify-center">
+                  <div className="bg-gray-50 p-6 rounded-lg flex items-center justify-center">
                     <div className="text-center py-6">
-                      <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Globe className="h-7 w-7 text-gray-400" />
                       </div>
-                      <p className="text-gray-400 mb-2">
+                      <p className="text-gray-600 mb-2">
                         No website URL has been set
                       </p>
                       <p className="text-xs text-gray-500 max-w-md">
@@ -1529,8 +1527,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 )}
 
                 {/* Update website URL */}
-                <div className="bg-gray-700/30 p-4 rounded-lg">
-                  <p className="text-sm text-gray-300 mb-3 font-medium">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-700 mb-3 font-medium">
                     Update Live Website URL
                   </p>
                   <div className="flex">
@@ -1538,7 +1536,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       type="text"
                       placeholder="Enter website URL (e.g., example.com)"
                       defaultValue={userData.websiteUrl || ""}
-                      className="flex-1 bg-gray-600 border border-gray-500 rounded-l-lg px-3 py-2 text-white"
+                      className="flex-1 bg-white border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       id="website-url"
                     />
                     <button
@@ -1554,12 +1552,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           "Website URL updated successfully"
                         );
                       }}
-                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg"
                     >
                       Update
                     </button>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Enter the full URL of the customer's live website. It will
                     be displayed in their dashboard.
                   </p>
@@ -1567,8 +1565,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                 {/* Remove website URL */}
                 {userData.websiteUrl && (
-                  <div className="bg-gray-700/30 p-4 rounded-lg">
-                    <p className="text-sm text-gray-300 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3 font-medium">
                       Remove Website URL
                     </p>
                     <button
@@ -1579,7 +1577,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           "Website URL removed"
                         )
                       }
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                      className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg"
                     >
                       Remove Website URL
                     </button>
@@ -1591,21 +1589,21 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
           {/* Editor URL Management */}
           {activeSubTab === "editor" && (
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-                <Code className="h-5 w-5 mr-2 text-orange-500" />
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-medium text-gray-800 mb-4 flex items-center">
+                <Code className="h-5 w-5 mr-2 text-blue-600" />
                 Content Editor URL
               </h2>
 
               <div className="space-y-6">
                 {/* Current editor URL */}
                 {userData.editorUrl ? (
-                  <div className="bg-gray-700/30 p-4 rounded-lg">
-                    <p className="text-sm text-gray-300 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3 font-medium">
                       Current Content Editor URL
                     </p>
-                    <div className="flex items-center bg-gray-800/50 p-3 rounded-lg">
-                      <Code className="h-5 w-5 text-orange-500 mr-3" />
+                    <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <Code className="h-5 w-5 text-blue-600 mr-3" />
                       <a
                         href={
                           userData.editorUrl.startsWith("http")
@@ -1614,7 +1612,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:underline"
+                        className="text-blue-600 hover:underline"
                       >
                         {userData.editorUrl}
                       </a>
@@ -1624,12 +1622,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-gray-700/30 p-6 rounded-lg flex items-center justify-center">
+                  <div className="bg-gray-50 p-6 rounded-lg flex items-center justify-center">
                     <div className="text-center py-6">
-                      <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Code className="h-7 w-7 text-gray-400" />
                       </div>
-                      <p className="text-gray-400 mb-2">
+                      <p className="text-gray-600 mb-2">
                         No editor URL has been set
                       </p>
                       <p className="text-xs text-gray-500 max-w-md">
@@ -1641,8 +1639,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 )}
 
                 {/* Update editor URL */}
-                <div className="bg-gray-700/30 p-4 rounded-lg mt-6">
-                  <p className="text-sm text-gray-300 mb-3 font-medium">
+                <div className="bg-gray-50 p-4 rounded-lg mt-6">
+                  <p className="text-sm text-gray-700 mb-3 font-medium">
                     Update Editor URL
                   </p>
                   <div className="flex">
@@ -1650,7 +1648,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       type="text"
                       placeholder="Enter editor URL (e.g., editor.example.com)"
                       defaultValue={userData.editorUrl || ""}
-                      className="flex-1 bg-gray-600 border border-gray-500 rounded-l-lg px-3 py-2 text-white"
+                      className="flex-1 bg-white border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       id="editor-url"
                     />
                     <button
@@ -1666,12 +1664,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           "Editor URL updated successfully"
                         );
                       }}
-                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg"
                     >
                       Update
                     </button>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Enter the URL where the client can access their content
                     management system.
                   </p>
@@ -1679,15 +1677,15 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                 {/* Remove editor URL */}
                 {userData.editorUrl && (
-                  <div className="bg-gray-700/30 p-4 rounded-lg mt-6">
-                    <p className="text-sm text-gray-300 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg mt-6">
+                    <p className="text-sm text-gray-700 mb-3 font-medium">
                       Remove Editor URL
                     </p>
                     <button
                       onClick={() =>
                         updateUserField("editorUrl", null, "Editor URL removed")
                       }
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                      className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg"
                     >
                       Remove Editor URL
                     </button>
@@ -1699,21 +1697,21 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
           {/* Revisions URL Management */}
           {activeSubTab === "revisions" && (
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-                <Layers className="h-5 w-5 mr-2 text-orange-500" />
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-medium text-gray-800 mb-4 flex items-center">
+                <Layers className="h-5 w-5 mr-2 text-blue-600" />
                 Revisions Editor URL
               </h2>
 
               <div className="space-y-6">
                 {/* Current revisions URL */}
                 {userData.revisionsUrl ? (
-                  <div className="bg-gray-700/30 p-4 rounded-lg">
-                    <p className="text-sm text-gray-300 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3 font-medium">
                       Current Revisions URL
                     </p>
-                    <div className="flex items-center bg-gray-800/50 p-3 rounded-lg">
-                      <Layers className="h-5 w-5 text-orange-500 mr-3" />
+                    <div className="flex items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                      <Layers className="h-5 w-5 text-blue-600 mr-3" />
                       <a
                         href={
                           userData.revisionsUrl.startsWith("http")
@@ -1722,7 +1720,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:underline"
+                        className="text-blue-600 hover:underline"
                       >
                         {userData.revisionsUrl}
                       </a>
@@ -1732,12 +1730,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-gray-700/30 p-6 rounded-lg flex items-center justify-center">
+                  <div className="bg-gray-50 p-6 rounded-lg flex items-center justify-center">
                     <div className="text-center py-6">
-                      <div className="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Layers className="h-7 w-7 text-gray-400" />
                       </div>
-                      <p className="text-gray-400 mb-2">
+                      <p className="text-gray-600 mb-2">
                         No revisions URL has been set
                       </p>
                       <p className="text-xs text-gray-500 max-w-md">
@@ -1749,8 +1747,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 )}
 
                 {/* Update revisions URL */}
-                <div className="bg-gray-700/30 p-4 rounded-lg mt-6">
-                  <p className="text-sm text-gray-300 mb-3 font-medium">
+                <div className="bg-gray-50 p-4 rounded-lg mt-6">
+                  <p className="text-sm text-gray-700 mb-3 font-medium">
                     Update Revisions URL
                   </p>
                   <div className="flex">
@@ -1758,7 +1756,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       type="text"
                       placeholder="Enter revisions URL (e.g., revisions.example.com)"
                       defaultValue={userData.revisionsUrl || ""}
-                      className="flex-1 bg-gray-600 border border-gray-500 rounded-l-lg px-3 py-2 text-white"
+                      className="flex-1 bg-white border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       id="revisions-url"
                     />
                     <button
@@ -1774,12 +1772,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           "Revisions URL updated successfully"
                         );
                       }}
-                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-r-lg"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg"
                     >
                       Update
                     </button>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     Enter the URL where the client can request and track
                     revisions.
                   </p>
@@ -1787,8 +1785,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                 {/* Remove revisions URL */}
                 {userData.revisionsUrl && (
-                  <div className="bg-gray-700/30 p-4 rounded-lg mt-6">
-                    <p className="text-sm text-gray-300 mb-3 font-medium">
+                  <div className="bg-gray-50 p-4 rounded-lg mt-6">
+                    <p className="text-sm text-gray-700 mb-3 font-medium">
                       Remove Revisions URL
                     </p>
                     <button
@@ -1799,7 +1797,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           "Revisions URL removed"
                         )
                       }
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                      className="bg-white hover:bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg"
                     >
                       Remove Revisions URL
                     </button>
@@ -1813,74 +1811,74 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
       {/* Questionnaire Tab Content */}
       {activeTab === "questionnaire" && (
-        <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-orange-500" />
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-xl font-medium text-gray-800 mb-6 flex items-center">
+            <FileText className="h-5 w-5 mr-2 text-blue-600" />
             Questionnaire Answers
           </h2>
 
           {userData?.questionnaireAnswers ? (
             <div className="space-y-8">
               {/* Business Information */}
-              <div className="border-t border-gray-700 pt-4">
-                <h3 className="text-md font-medium text-white mb-4 flex items-center">
-                  <Users className="h-4 w-4 mr-2 text-orange-500" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <Users className="h-4 w-4 mr-2 text-blue-600" />
                   Business Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">Business Name</p>
-                    <p className="text-sm text-gray-200">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">Business Name</p>
+                    <p className="text-sm text-gray-800">
                       {renderQuestionnaireField(
                         userData.questionnaireAnswers.businessName
                       )}
                     </p>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Business Tagline
                     </p>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-gray-800">
                       {renderQuestionnaireField(
                         userData.questionnaireAnswers.businessTagline
                       )}
                     </p>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Business Description
                     </p>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-gray-800">
                       {renderQuestionnaireField(
                         userData.questionnaireAnswers.businessDescription
                       )}
                     </p>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Services & Products
                     </p>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-gray-800">
                       {renderQuestionnaireField(
                         userData.questionnaireAnswers.servicesProducts
                       )}
                     </p>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Target Audience
                     </p>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-gray-800">
                       {renderQuestionnaireField(
                         userData.questionnaireAnswers.targetAudience
                       )}
                     </p>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Business Unique Selling Points
                     </p>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-gray-800">
                       {renderQuestionnaireField(
                         userData.questionnaireAnswers.businessUnique
                       )}
@@ -1890,9 +1888,9 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Competitors */}
-              <div className="border-t border-gray-700 pt-4">
-                <h3 className="text-md font-medium text-white mb-4 flex items-center">
-                  <Globe className="h-4 w-4 mr-2 text-orange-500" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <Globe className="h-4 w-4 mr-2 text-blue-600" />
                   Competitors
                 </h3>
                 {userData.questionnaireAnswers.competitors &&
@@ -1903,13 +1901,13 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                       (competitor, index) => (
                         <div
                           key={index}
-                          className="bg-gray-700/30 p-4 rounded-md flex items-center"
+                          className="bg-gray-50 p-4 rounded-md flex items-center"
                         >
-                          <div className="mr-3 flex-shrink-0 w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                            <Globe className="h-4 w-4 text-orange-400" />
+                          <div className="mr-3 flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Globe className="h-4 w-4 text-blue-600" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm text-white font-medium">
+                            <p className="text-sm text-gray-800 font-medium">
                               {competitor.name}
                             </p>
                             {competitor.url && (
@@ -1921,7 +1919,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                                 }
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-xs text-blue-400 hover:underline flex items-center"
+                                className="text-xs text-blue-600 hover:underline flex items-center"
                               >
                                 {competitor.url}
                                 <ExternalLink className="h-3 w-3 ml-1" />
@@ -1933,8 +1931,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     )}
                   </div>
                 ) : (
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-sm text-gray-400">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-sm text-gray-500">
                       No competitors listed
                     </p>
                   </div>
@@ -1942,14 +1940,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Design Information */}
-              <div className="border-t border-gray-700 pt-4">
-                <h3 className="text-md font-medium text-white mb-4 flex items-center">
-                  <Palette className="h-4 w-4 mr-2 text-orange-500" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <Palette className="h-4 w-4 mr-2 text-blue-600" />
                   Design & Style Preferences
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">Website Style</p>
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">Website Style</p>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {userData.questionnaireAnswers.websiteStyle &&
                       Array.isArray(
@@ -1959,21 +1957,21 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           (style, index) => (
                             <span
                               key={index}
-                              className="px-2 py-1 bg-gray-600 text-xs text-white rounded-full"
+                              className="px-2 py-1 bg-white text-xs text-gray-700 rounded-full border border-gray-200"
                             >
                               {style}
                             </span>
                           )
                         )
                       ) : (
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-gray-500">
                           Not specified
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Color Preferences
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
@@ -1988,21 +1986,21 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                                 className="w-4 h-4 rounded-full mr-1"
                                 style={{ backgroundColor: color }}
                               ></div>
-                              <span className="text-xs text-gray-300">
+                              <span className="text-xs text-gray-700">
                                 {color}
                               </span>
                             </div>
                           )
                         )
                       ) : (
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-gray-500">
                           No color preferences specified
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Desired Website Pages
                     </p>
                     <div className="flex flex-wrap gap-2 mt-1">
@@ -2014,21 +2012,21 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           (page, index) => (
                             <span
                               key={index}
-                              className="px-2 py-1 bg-gray-600 text-xs text-white rounded-md"
+                              className="px-2 py-1 bg-white text-xs text-gray-700 rounded-md border border-gray-200"
                             >
                               {page}
                             </span>
                           )
                         )
                       ) : (
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-gray-500">
                           No pages specified
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Desired Visitor Actions
                     </p>
                     <div className="flex flex-wrap gap-2 mt-1">
@@ -2040,14 +2038,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           (action, index) => (
                             <span
                               key={index}
-                              className="px-2 py-1 bg-gray-600 text-xs text-white rounded-md"
+                              className="px-2 py-1 bg-white text-xs text-gray-700 rounded-md border border-gray-200"
                             >
                               {action}
                             </span>
                           )
                         )
                       ) : (
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-gray-500">
                           No actions specified
                         </span>
                       )}
@@ -2057,17 +2055,17 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Current Website Information */}
-              <div className="border-t border-gray-700 pt-4">
-                <h3 className="text-md font-medium text-white mb-4 flex items-center">
-                  <Globe className="h-4 w-4 mr-2 text-orange-500" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <Globe className="h-4 w-4 mr-2 text-blue-600" />
                   Current Website Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-1">
                       Has Current Website
                     </p>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-gray-800">
                       {renderQuestionnaireField(
                         userData.questionnaireAnswers.hasCurrentWebsite
                       )}
@@ -2076,8 +2074,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   {userData.questionnaireAnswers.hasCurrentWebsite ===
                     "Yes" && (
                     <>
-                      <div className="bg-gray-700/30 p-4 rounded-md">
-                        <p className="text-xs text-gray-400 mb-1">
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <p className="text-xs text-gray-500 mb-1">
                           Current Website URL
                         </p>
                         {userData.questionnaireAnswers.currentWebsiteUrl ? (
@@ -2093,40 +2091,40 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                             }
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-400 hover:underline flex items-center text-sm"
+                            className="text-blue-600 hover:underline flex items-center text-sm"
                           >
                             {userData.questionnaireAnswers.currentWebsiteUrl}
                             <ExternalLink className="h-3 w-3 ml-1" />
                           </a>
                         ) : (
-                          <p className="text-sm text-gray-400">Not provided</p>
+                          <p className="text-sm text-gray-500">Not provided</p>
                         )}
                       </div>
-                      <div className="bg-gray-700/30 p-4 rounded-md">
-                        <p className="text-xs text-gray-400 mb-1">
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <p className="text-xs text-gray-500 mb-1">
                           Current CMS
                         </p>
-                        <p className="text-sm text-gray-200">
+                        <p className="text-sm text-gray-800">
                           {renderQuestionnaireField(
                             userData.questionnaireAnswers.currentCms
                           )}
                         </p>
                       </div>
-                      <div className="bg-gray-700/30 p-4 rounded-md">
-                        <p className="text-xs text-gray-400 mb-1">
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <p className="text-xs text-gray-500 mb-1">
                           Current Website Likes
                         </p>
-                        <p className="text-sm text-gray-200">
+                        <p className="text-sm text-gray-800">
                           {renderQuestionnaireField(
                             userData.questionnaireAnswers.websiteLikes
                           )}
                         </p>
                       </div>
-                      <div className="bg-gray-700/30 p-4 rounded-md">
-                        <p className="text-xs text-gray-400 mb-1">
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <p className="text-xs text-gray-500 mb-1">
                           Current Website Dislikes
                         </p>
-                        <p className="text-sm text-gray-200">
+                        <p className="text-sm text-gray-800">
                           {renderQuestionnaireField(
                             userData.questionnaireAnswers.websiteDislikes
                           )}
@@ -2138,25 +2136,25 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Domain Information */}
-              <div className="border-t border-gray-700 pt-4">
-                <h3 className="text-md font-medium text-white mb-4 flex items-center">
-                  <Globe className="h-4 w-4 mr-2 text-orange-500" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <Globe className="h-4 w-4 mr-2 text-blue-600" />
                   Domain Information
                 </h3>
-                <div className="bg-gray-700/30 p-4 rounded-md">
+                <div className="bg-gray-50 p-4 rounded-md">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Domain Name</p>
+                      <p className="text-xs text-gray-500 mb-1">Domain Name</p>
                       {domainInfo.name ? (
                         <div className="flex items-center">
-                          <p className="text-white font-medium">
+                          <p className="text-gray-800 font-medium">
                             {domainInfo.name}
                           </p>
                           <span
                             className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
                               domainInfo.isCustom
-                                ? "bg-blue-900/30 text-blue-400 border border-blue-800"
-                                : "bg-green-900/30 text-green-400 border border-green-800"
+                                ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                : "bg-green-100 text-green-700 border border-green-200"
                             }`}
                           >
                             {domainInfo.isCustom
@@ -2165,7 +2163,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           </span>
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-500">
                           No domain selected
                         </p>
                       )}
@@ -2173,7 +2171,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                     <button
                       onClick={() => setActiveTab("domain")}
-                      className="bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white px-3 py-1 rounded text-xs flex items-center"
+                      className="bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 px-3 py-1 rounded text-xs flex items-center border border-gray-200"
                     >
                       <Settings className="h-3 w-3 mr-1" />
                       Manage
@@ -2182,11 +2180,11 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                   {domainInfo.isCustom &&
                     userData.questionnaireAnswers.domainProvider && (
-                      <div className="mt-3 pt-3 border-t border-gray-600">
-                        <p className="text-xs text-gray-400 mb-1">
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-500 mb-1">
                           Domain Provider
                         </p>
-                        <p className="text-sm text-gray-200">
+                        <p className="text-sm text-gray-800">
                           {userData.questionnaireAnswers.domainProvider}
                         </p>
                       </div>
@@ -2195,25 +2193,28 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Assets */}
-              <div className="border-t border-gray-700 pt-4">
-                <h3 className="text-md font-medium text-white mb-4 flex items-center">
-                  <Database className="h-4 w-4 mr-2 text-orange-500" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <Database className="h-4 w-4 mr-2 text-blue-600" />
                   Uploaded Assets
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Logo */}
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-2">Logo</p>
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-2">Logo</p>
                     {userData.questionnaireAnswers.logoUpload &&
                     typeof userData.questionnaireAnswers.logoUpload ===
                       "object" &&
                     "url" in userData.questionnaireAnswers.logoUpload ? (
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gray-600 rounded-md flex items-center justify-center overflow-hidden mr-3">
+                        <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
                           {/* Use Next.js Image for better performance */}
                           <div className="relative w-full h-full">
                             <Image
-                              src={userData.questionnaireAnswers.logoUpload.url}
+                              src={
+                                userData.questionnaireAnswers.logoUpload.url ||
+                                "/placeholder.svg"
+                              }
                               alt="Logo"
                               layout="fill"
                               objectFit="contain"
@@ -2221,10 +2222,10 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-gray-200">
+                          <p className="text-sm text-gray-800">
                             {userData.questionnaireAnswers.logoUpload.name}
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-gray-500">
                             {(
                               userData.questionnaireAnswers.logoUpload.size /
                               1024
@@ -2239,13 +2240,13 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         />
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-400">No logo uploaded</p>
+                      <p className="text-sm text-gray-500">No logo uploaded</p>
                     )}
                   </div>
 
                   {/* Team Photos */}
-                  <div className="bg-gray-700/30 p-4 rounded-md">
-                    <p className="text-xs text-gray-400 mb-2">Team Photos</p>
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-xs text-gray-500 mb-2">Team Photos</p>
                     {userData.questionnaireAnswers.teamPhotos &&
                     Array.isArray(userData.questionnaireAnswers.teamPhotos) &&
                     userData.questionnaireAnswers.teamPhotos.length > 0 ? (
@@ -2255,12 +2256,12 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           .map((photo, index) => (
                             <div
                               key={index}
-                              className="aspect-square bg-gray-600 rounded-md flex items-center justify-center overflow-hidden"
+                              className="aspect-square bg-white rounded-md flex items-center justify-center overflow-hidden border border-gray-200"
                             >
                               {/* Use Next.js Image */}
                               <div className="relative w-full h-full">
                                 <Image
-                                  src={photo.url}
+                                  src={photo.url || "/placeholder.svg"}
                                   alt={`Team photo ${index + 1}`}
                                   layout="fill"
                                   objectFit="cover"
@@ -2268,17 +2269,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                                 <div className="absolute bottom-1 left-1 right-1 flex justify-between p-1 bg-black/50 rounded-md text-white text-xs">
                                   {/* Download Button */}
                                   <DownloadButton url={photo.url} />
-
-                                  {/* OR if you want a Copy URL button instead of download */}
-                                  {/* <CopyButton text={photo.url} /> */}
                                 </div>
                               </div>
                             </div>
                           ))}
                         {userData.questionnaireAnswers.teamPhotos.length >
                           8 && (
-                          <div className="aspect-square bg-gray-600 rounded-md flex items-center justify-center">
-                            <span className="text-sm text-gray-300">
+                          <div className="aspect-square bg-white rounded-md flex items-center justify-center border border-gray-200">
+                            <span className="text-sm text-gray-700">
                               +
                               {userData.questionnaireAnswers.teamPhotos.length -
                                 8}{" "}
@@ -2288,7 +2286,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         )}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-gray-500">
                         No team photos uploaded
                       </p>
                     )}
@@ -2297,16 +2295,16 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Content Preferences */}
-              <div className="border-t border-gray-700 pt-4">
-                <h3 className="text-md font-medium text-white mb-4 flex items-center">
-                  <FileText className="h-4 w-4 mr-2 text-orange-500" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center">
+                  <FileText className="h-4 w-4 mr-2 text-blue-600" />
                   Content Preferences
                 </h3>
-                <div className="bg-gray-700/30 p-4 rounded-md">
-                  <p className="text-xs text-gray-400 mb-1">
+                <div className="bg-gray-50 p-4 rounded-md">
+                  <p className="text-xs text-gray-500 mb-1">
                     Content Readiness
                   </p>
-                  <p className="text-sm text-gray-200 font-medium">
+                  <p className="text-sm text-gray-800 font-medium">
                     {renderQuestionnaireField(
                       userData.questionnaireAnswers.contentReady
                     )}
@@ -2315,14 +2313,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
             </div>
           ) : (
-            <div className="bg-gray-700/30 p-6 rounded-lg flex flex-col items-center justify-center">
-              <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-4">
+            <div className="bg-gray-50 p-6 rounded-lg flex flex-col items-center justify-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <FileText className="h-8 w-8 text-gray-400" />
               </div>
-              <p className="text-gray-300 mb-2 text-center">
+              <p className="text-gray-700 mb-2 text-center">
                 This client hasn't completed the questionnaire yet
               </p>
-              <p className="text-sm text-gray-400 max-w-md text-center mb-4">
+              <p className="text-sm text-gray-500 max-w-md text-center mb-4">
                 The client needs to complete the onboarding questionnaire to
                 provide information about their business and website
                 requirements.
@@ -2332,7 +2330,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   // You could add functionality to send a reminder email here
                   setSuccess("Reminder email sent to client");
                 }}
-                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
               >
                 Send Questionnaire Reminder
               </button>
@@ -2343,31 +2341,31 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
       {/* Phases Tab Content */}
       {activeTab === "phases" && (
-        <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-            <Layers className="h-5 w-5 mr-2 text-orange-500" />
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-xl font-medium text-gray-800 mb-6 flex items-center">
+            <Layers className="h-5 w-5 mr-2 text-blue-600" />
             Project Phases
           </h2>
           <div className="space-y-6">
             {projectPhases.map((phase, phaseIndex) => (
               <div
                 key={phaseIndex}
-                className="border border-gray-700 rounded-lg p-4"
+                className="border border-gray-200 rounded-lg p-4 shadow-sm"
               >
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center">
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${
                         phase.status === "completed"
-                          ? "bg-green-900 text-green-400"
+                          ? "bg-green-100 text-green-600"
                           : phase.status === "active"
-                          ? "bg-orange-900 text-orange-400"
-                          : "bg-gray-700 text-gray-400"
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-gray-100 text-gray-500"
                       }`}
                     >
                       {getPhaseIcon(phase.name)}
                     </div>
-                    <h3 className="text-lg font-medium text-white">
+                    <h3 className="text-lg font-medium text-gray-800">
                       {phase.name}
                     </h3>
                   </div>
@@ -2376,10 +2374,10 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     <span
                       className={`px-2 py-1 text-xs rounded-full mr-3 ${
                         phase.status === "completed"
-                          ? "bg-green-900/30 text-green-400 border border-green-800"
+                          ? "bg-green-100 text-green-700 border border-green-200"
                           : phase.status === "active"
-                          ? "bg-orange-900/30 text-orange-400 border border-orange-800"
-                          : "bg-gray-700 text-gray-400 border border-gray-600"
+                          ? "bg-blue-100 text-blue-700 border border-blue-200"
+                          : "bg-gray-100 text-gray-700 border border-gray-200"
                       }`}
                     >
                       {phase.status === "completed"
@@ -2397,7 +2395,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           e.target.value as "completed" | "active" | "pending"
                         )
                       }
-                      className="bg-gray-700 border-none text-white rounded-lg"
+                      className="bg-white border border-gray-300 text-gray-700 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="pending">Pending</option>
                       <option value="active">Active</option>
@@ -2411,7 +2409,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   {phase.tasks.map((task, taskIndex) => (
                     <div
                       key={taskIndex}
-                      className="flex items-center justify-between bg-gray-700/50 p-3 rounded-lg"
+                      className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200"
                     >
                       <div className="flex items-center">
                         <button
@@ -2421,16 +2419,16 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                           className="mr-3 flex-shrink-0"
                         >
                           {task.completed ? (
-                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <CheckCircle2 className="h-5 w-5 text-green-600" />
                           ) : (
-                            <Circle className="h-5 w-5 text-gray-500" />
+                            <Circle className="h-5 w-5 text-gray-400" />
                           )}
                         </button>
                         <span
                           className={`${
                             task.completed
-                              ? "text-gray-400 line-through"
-                              : "text-gray-200"
+                              ? "text-gray-500 line-through"
+                              : "text-gray-800"
                           }`}
                         >
                           {task.name}
@@ -2439,7 +2437,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
                       <button
                         onClick={() => removeTask(phaseIndex, taskIndex)}
-                        className="text-red-400 hover:text-red-300"
+                        className="text-gray-400 hover:text-red-500"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -2451,7 +2449,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     <input
                       type="text"
                       placeholder="Add new task..."
-                      className="flex-1 bg-gray-700 border-none rounded-l-lg px-3 py-2 text-white"
+                      className="flex-1 bg-white border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           const target = e.target as HTMLInputElement;
@@ -2467,7 +2465,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         addTask(phaseIndex, input.value);
                         input.value = "";
                       }}
-                      className="bg-gray-600 text-white rounded-r-lg px-3 py-2 hover:bg-gray-500"
+                      className="bg-blue-600 text-white rounded-r-lg px-3 py-2 hover:bg-blue-700"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -2481,25 +2479,25 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
       {/* Feedback Tab Content */}
       {activeTab === "feedback" && (
-        <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-white flex items-center">
-              <MessageSquare className="h-5 w-5 mr-2 text-orange-500" />
+            <h2 className="text-xl font-medium text-gray-800 flex items-center">
+              <MessageSquare className="h-5 w-5 mr-2 text-blue-600" />
               Client Feedback
             </h2>
 
             <div className="flex items-center">
               {!userData?.websiteUrl && (
-                <span className="bg-yellow-600/30 text-yellow-400 text-xs px-3 py-1 rounded-full border border-yellow-600 mr-2">
+                <span className="bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-full border border-amber-200 mr-2">
                   Website URL not set
                 </span>
               )}
               {unreadCount > 0 && (
                 <button
                   onClick={markAllMessagesAsRead}
-                  className="text-xs px-3 py-1 rounded-lg text-gray-300 bg-gray-700 hover:bg-gray-600 flex items-center"
+                  className="text-xs px-3 py-1 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 flex items-center"
                 >
-                  <CheckCircle className="h-3 w-3 mr-1" />
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
                   Mark all as read
                 </button>
               )}
@@ -2510,7 +2508,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             <>
               <div
                 ref={feedbackMessagesRef}
-                className="bg-gray-700/30 rounded-lg p-4 mb-4 h-[400px] overflow-y-auto"
+                className="bg-gray-50 rounded-lg p-4 mb-4 h-[400px] overflow-y-auto border border-gray-200"
               >
                 {userData?.feedbackMessages &&
                 userData.feedbackMessages.length > 0 ? (
@@ -2525,24 +2523,38 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                         <div
                           className={`max-w-[80%] rounded-lg p-3 ${
                             message.isFromClient
-                              ? "bg-blue-900/20 text-blue-100 border border-blue-800"
-                              : "bg-orange-900/20 text-orange-100 border border-orange-800"
+                              ? "bg-blue-50 text-blue-900 border border-blue-200"
+                              : "bg-blue-600 text-white"
                           }`}
                         >
                           <div className="flex items-center mb-1">
                             <span
                               className={`text-xs font-medium ${
                                 message.isFromClient
-                                  ? "text-blue-400"
-                                  : "text-orange-400"
+                                  ? "text-blue-700"
+                                  : "text-blue-100"
                               }`}
                             >
                               {message.isFromClient
                                 ? userData.firstName || "Client"
                                 : message.adminName || "Support Team"}
                             </span>
-                            <span className="mx-2 text-gray-500">•</span>
-                            <span className="text-xs text-gray-400">
+                            <span
+                              className={`mx-2 ${
+                                message.isFromClient
+                                  ? "text-blue-400"
+                                  : "text-blue-300"
+                              }`}
+                            >
+                              •
+                            </span>
+                            <span
+                              className={`text-xs ${
+                                message.isFromClient
+                                  ? "text-blue-500"
+                                  : "text-blue-200"
+                              }`}
+                            >
                               {new Date(message.timestamp).toLocaleString()}
                             </span>
                             {message.isFromClient && !message.isRead && (
@@ -2560,10 +2572,10 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full">
-                    <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                      <MessageSquare className="h-8 w-8 text-gray-500" />
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <MessageSquare className="h-8 w-8 text-gray-400" />
                     </div>
-                    <p className="text-gray-400 text-center">
+                    <p className="text-gray-500 text-center">
                       No feedback messages yet. Client feedback will appear here
                       once they send comments.
                     </p>
@@ -2571,8 +2583,8 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 )}
               </div>
 
-              <div className="bg-gray-700/30 rounded-lg p-4">
-                <label className="block text-sm text-gray-300 mb-2">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <label className="block text-sm text-gray-700 mb-2">
                   Reply to client
                 </label>
                 <div className="flex flex-col">
@@ -2580,13 +2592,13 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                     value={replyMessage}
                     onChange={(e) => setReplyMessage(e.target.value)}
                     placeholder="Type your response here..."
-                    className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white resize-none h-24 mb-3"
+                    className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-800 resize-none h-24 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   ></textarea>
                   <div className="flex justify-end">
                     <button
                       onClick={handleSendReply}
                       disabled={!replyMessage.trim() || isSendingReply}
-                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                     >
                       {isSendingReply ? (
                         <>
@@ -2605,14 +2617,14 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
               </div>
             </>
           ) : (
-            <div className="bg-gray-700/30 p-6 rounded-lg text-center">
-              <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="h-8 w-8 text-gray-500" />
+            <div className="bg-gray-50 p-6 rounded-lg text-center border border-gray-200">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-white mb-2">
+              <h3 className="text-lg font-medium text-gray-800 mb-2">
                 Feedback not available yet
               </h3>
-              <p className="text-gray-400 mb-4">
+              <p className="text-gray-600 mb-4">
                 Client feedback will be available once you set a website URL.
                 Clients can only provide feedback after their website is
                 published.
@@ -2622,7 +2634,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                   setActiveTab("website");
                   setActiveSubTab("liveUrl");
                 }}
-                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
               >
                 Go to Website URL Settings
               </button>

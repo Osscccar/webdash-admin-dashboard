@@ -5,6 +5,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Users, LogOut } from "lucide-react";
+import logo from "../../../public/logo.webp";
+import Image from "next/image";
 
 export default function DashboardLayout({
   children,
@@ -22,7 +24,7 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
@@ -33,15 +35,13 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <Users className="h-6 w-6 text-orange-500 mr-3" />
-            <h1 className="text-xl font-bold text-white">
-              Lumix Digital Admin
-            </h1>
+            <Image src={logo} alt="Lumix Logo" />
           </div>
           <button
             onClick={logout}
