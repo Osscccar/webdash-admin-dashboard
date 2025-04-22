@@ -38,15 +38,15 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
 }) => {
   return (
     <div
-      className={`transition-all duration-300 ease-in-out relative ${
+      className={`fixed left-0 top-0 h-full z-20 transition-all duration-300 ease-in-out ${
         sidebarOpen ? "w-72" : "w-20"
-      } ${sidebarOpen ? "block" : "block"} h-full`}
+      }`}
     >
-      <div className="bg-white shadow-md h-full fixed top-[69px] border-r border-gray-200">
+      <div className="bg-white shadow-md h-full border-r border-gray-200 overflow-y-auto">
         {/* Toggle sidebar button for desktop */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute -right-5 top-10 bg-blue-600 hover:bg-blue-700 rounded-full p-2 shadow-md text-white flex items-center justify-center z-10 h-10 w-10"
+          className="absolute -right-5 top-20 bg-blue-600 hover:bg-blue-700 rounded-full p-2 shadow-md text-white flex items-center justify-center z-10 h-10 w-10"
         >
           {sidebarOpen ? (
             <ChevronLeft className="h-6 w-6" />
@@ -57,7 +57,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
 
         {/* Client info summary - Show full info when open, only icon when closed */}
         <div
-          className={`p-5 border-b border-gray-200 ${
+          className={`p-5 border-b border-gray-200 mt-14 ${
             sidebarOpen ? "" : "flex justify-center"
           }`}
         >

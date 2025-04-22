@@ -8,6 +8,7 @@ import { db } from "@/lib/firebase";
 import type { UserData, ProjectPhase, TabType } from "@/types";
 
 // Components
+import { ClientHeader } from "@/components/client/ClientHeader";
 import { ClientSidebar } from "@/components/client/ClientSidebar";
 import { ConfirmationModal } from "@/components/client/ConfirmationModal";
 import { Toast } from "@/components/client/Toast";
@@ -482,25 +483,46 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
         type={confirmModal.type}
       />
 
-      {/* Main content */}
-      <div className="flex flex-grow">
-        {/* Sidebar */}
-        <ClientSidebar
+      {/* Sidebar */}
+      <ClientSidebar
+        userData={userData}
+        projectCompletionPercentage={projectCompletionPercentage}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        exportClientData={exportClientData}
+      />
+
+      {/* Main content area with header */}
+      <div
+        className={`ml-${
+          sidebarOpen ? "72" : "20"
+        } transition-all duration-300`}
+      >
+        {/* Header */}
+        <ClientHeader
           userData={userData}
-          projectCompletionPercentage={projectCompletionPercentage}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
+          router={router}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          isSearchOpen={isSearchOpen}
+          setIsSearchOpen={setIsSearchOpen}
+          isExporting={isExporting}
           exportClientData={exportClientData}
+          isNotificationsOpen={isNotificationsOpen}
+          setIsNotificationsOpen={setIsNotificationsOpen}
+          isUserMenuOpen={isUserMenuOpen}
+          setIsUserMenuOpen={setIsUserMenuOpen}
+          setActiveTab={setActiveTab}
+          saving={saving}
+          saveChanges={saveChanges}
         />
 
-        {/* Main content area */}
-        <div
-          className={`flex-1 transition-all duration-300 p-6 ${
-            sidebarOpen ? "pl-6" : "pl-6"
-          }`}
-        >
+        {/* Content area */}
+        <div className="p-6">
           {/* Website Tab - Sub Navigation */}
           {activeTab === "website" && (
             <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6">
