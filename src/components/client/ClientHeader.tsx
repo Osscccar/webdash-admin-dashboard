@@ -73,13 +73,6 @@ export const ClientHeader: React.FC<ClientHeaderProps> = ({
           </button>
         </div>
 
-        {/* Center section - Client name */}
-        <div className="hidden md:block">
-          <h1 className="text-xl font-semibold text-gray-800">
-            {userData.firstName} {userData.lastName}
-          </h1>
-        </div>
-
         {/* Right section */}
         <div className="flex items-center space-x-3">
           {/* Search */}

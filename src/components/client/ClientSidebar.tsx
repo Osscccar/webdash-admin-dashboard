@@ -13,7 +13,7 @@ import {
   Edit,
   User,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { UserData, TabType } from "@/types";
 
 interface ClientSidebarProps {
@@ -81,15 +81,15 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
         <div
           className={`p-5 border-b border-gray-200 mt-14 ${
             sidebarOpen ? "" : "flex justify-center"
-          }`}
+          } overflow-hidden`}
         >
           {sidebarOpen ? (
             <>
-              <div className="flex items-center space-x-3">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center aspect-square">
+              <div className="flex items-center space-x-3 animate-in slide-in-from-left duration-300 ease-in-out">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center aspect-square transition-all duration-300">
                   <User className="h-8 w-8 text-blue-600" />
                 </div>
-                <div>
+                <div className="animate-in fade-in duration-300 delay-100">
                   <h2 className="font-medium text-gray-800 text-lg">
                     {userData.firstName} {userData.lastName}
                   </h2>
@@ -97,7 +97,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 </div>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-gray-100">
+              <div className="mt-5 pt-4 border-t border-gray-100 animate-in fade-in slide-in-from-bottom duration-300 delay-150">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600">
                     Project Progress
@@ -106,16 +106,16 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                     {projectCompletionPercentage}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-out"
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-700 ease-out-expo"
                     style={{ width: `${projectCompletionPercentage}%` }}
                   ></div>
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="mt-4 grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-bottom duration-300 delay-200">
+                <div className="bg-gray-50 p-3 rounded-lg transform transition-all duration-300 hover:bg-gray-100">
                   <p className="text-xs text-gray-500">Subscription</p>
                   <p
                     className={`text-sm font-medium ${
@@ -133,7 +133,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                       : "Pending"}
                   </p>
                 </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="bg-gray-50 p-3 rounded-lg transform transition-all duration-300 hover:bg-gray-100">
                   <p className="text-xs text-gray-500">Plan</p>
                   <p className="text-sm font-medium text-gray-800">
                     {userData.planType || "Standard"}
@@ -142,8 +142,8 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
               </div>
             </>
           ) : (
-            <div className="flex justify-center py-5">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center aspect-square">
+            <div className="flex justify-center py-5 transition-all duration-300 ease-in-out">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center aspect-square transition-all duration-300">
                 <User className="h-6 w-6 text-blue-600" />
               </div>
             </div>
@@ -153,10 +153,10 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
         {/* Navigation - Show icons and text when open, only icons when closed */}
         <nav className="p-3">
           <ul className="space-y-2">
-            <li>
+            <li className="animate-in slide-in-from-left duration-300 delay-100">
               <button
                 onClick={() => setActiveTab("overview")}
-                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                   activeTab === "overview"
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100"
@@ -171,10 +171,10 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 {sidebarOpen && <span className="text-base">Overview</span>}
               </button>
             </li>
-            <li>
+            <li className="animate-in slide-in-from-left duration-300 delay-150">
               <button
                 onClick={() => setActiveTab("domain")}
-                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                   activeTab === "domain"
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100"
@@ -189,10 +189,10 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 {sidebarOpen && <span className="text-base">Domain</span>}
               </button>
             </li>
-            <li>
+            <li className="animate-in slide-in-from-left duration-300 delay-200">
               <button
                 onClick={() => setActiveTab("website")}
-                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                   activeTab === "website"
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100"
@@ -207,10 +207,10 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 {sidebarOpen && <span className="text-base">Website</span>}
               </button>
             </li>
-            <li>
+            <li className="animate-in slide-in-from-left duration-300 delay-250">
               <button
                 onClick={() => setActiveTab("questionnaire")}
-                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                   activeTab === "questionnaire"
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100"
@@ -229,10 +229,10 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 )}
               </button>
             </li>
-            <li>
+            <li className="animate-in slide-in-from-left duration-300 delay-300">
               <button
                 onClick={() => setActiveTab("phases")}
-                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                   activeTab === "phases"
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100"
@@ -249,10 +249,10 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 )}
               </button>
             </li>
-            <li>
+            <li className="animate-in slide-in-from-left duration-300 delay-350">
               <button
                 onClick={() => setActiveTab("notes")}
-                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                   activeTab === "notes"
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100"
@@ -267,10 +267,10 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 {sidebarOpen && <span className="text-base">Notes</span>}
               </button>
             </li>
-            <li>
+            <li className="animate-in slide-in-from-left duration-300 delay-400">
               <button
                 onClick={() => setActiveTab("analytics")}
-                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                className={`flex items-center w-full px-4 py-3 rounded-lg text-sm transition-all duration-300 cursor-pointer ${
                   activeTab === "analytics"
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-700 hover:bg-gray-100"
@@ -292,14 +292,14 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
 
         {/* Quick actions - Only show when sidebar is open */}
         {sidebarOpen && (
-          <div className="p-4 border-t border-gray-200 mt-4">
+          <div className="p-4 border-t border-gray-200 mt-4 animate-in fade-in duration-300 delay-200">
             <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
               Quick Actions
             </h3>
             <div className="space-y-2">
               <button
                 onClick={exportClientData}
-                className="flex items-center w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors duration-200 cursor-pointer"
+                className="flex items-center w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-all duration-300 cursor-pointer animate-in slide-in-from-left duration-300 delay-250"
               >
                 <Download className="h-5 w-5 mr-3 text-blue-600" />
                 Export Data
@@ -308,7 +308,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 onClick={() => {
                   setActiveTab("phases");
                 }}
-                className="flex items-center w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors duration-200 cursor-pointer"
+                className="flex items-center w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-all duration-300 cursor-pointer animate-in slide-in-from-left duration-300 delay-300"
               >
                 <Edit className="h-5 w-5 mr-3 text-blue-600" />
                 Update Progress
