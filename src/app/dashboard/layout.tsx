@@ -41,7 +41,7 @@ export default function DashboardLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <Users className="h-6 w-6 text-orange-500 mr-3" />
-            <Image src={logo} alt="Lumix Logo" />
+            <Image src={logo} alt="Lumix Logo" className="w-30 h-12" />
           </div>
           <button
             onClick={logout}
