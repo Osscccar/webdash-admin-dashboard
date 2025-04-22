@@ -514,11 +514,16 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
             exportClientData={exportClientData}
           />
 
           {/* Main content area */}
-          <div className="flex-1">
+          <div
+            className={`flex-1 transition-all duration-300 ${
+              sidebarOpen ? "" : "lg:ml-0"
+            }`}
+          >
             {/* Website Tab - Sub Navigation */}
             {activeTab === "website" && (
               <div className="bg-white rounded-xl overflow-hidden shadow-sm mb-6">

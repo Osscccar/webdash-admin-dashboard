@@ -76,9 +76,11 @@ export const ClientHeader: React.FC<ClientHeaderProps> = ({
                 </span>
               </button>
 
+              {/* Sidebar toggle button that works on both mobile and desktop */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer lg:hidden"
+                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
+                title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
               >
                 <Menu className="h-5 w-5" />
               </button>
