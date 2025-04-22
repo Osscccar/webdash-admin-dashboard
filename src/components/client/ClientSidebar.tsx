@@ -204,7 +204,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
             </div>
           </div>
         ) : (
-          <div className="p-3 border-t border-gray-200 mt-4">
+          <div className="absolute bottom-0 w-full p-3 border-t border-gray-200 bg-white">
             <div className="flex flex-col items-center space-y-4 py-2">
               <button
                 onClick={exportClientData}
