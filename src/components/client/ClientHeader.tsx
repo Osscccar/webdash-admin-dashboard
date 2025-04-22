@@ -58,8 +58,8 @@ export const ClientHeader: React.FC<ClientHeaderProps> = ({
   saveChanges,
 }) => {
   return (
-    <header className="bg-white border-b border-gray-200 top-0 z-30 shadow-sm">
-      <div className="py-2 flex justify-between items-center">
+    <div className="bg-white border-b border-gray-200 top-0 z-30 shadow-sm">
+      <div className="px-6 space-y-6 flex justify-between items-center">
         {/* Left section */}
         <div className="flex items-center space-x-4">
           <button
@@ -190,6 +190,6 @@ export const ClientHeader: React.FC<ClientHeaderProps> = ({
           </button>
         </div>
       </div>
-    </header>
+    </div>
   );
 };
