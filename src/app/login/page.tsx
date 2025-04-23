@@ -1,35 +1,63 @@
-// src/app/login/page.tsx
 /* eslint-disable */
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { KeyRound, AlertCircle } from "lucide-react";
+import { KeyRound, AlertCircle, Loader2 } from "lucide-react";
+import TwoFactorAuth from "@/components/auth/TwoFactorAuth";
+import { toast } from "react-hot-toast";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Attempt login
-    const success = login(username, password);
+    try {
+      // Attempt login
+      const success = login(username, password);
 
-    if (success) {
-      router.push("/dashboard");
-    } else {
-      setError("Invalid credentials. Please try again.");
+      if (success) {
+        // Show 2FA screen
+        setShow2FA(true);
+      } else {
+        setError("Invalid credentials. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
+
+  const handle2FAVerify = (verified: boolean) => {
+    if (verified) {
+      toast.success("Login successful");
+      router.push("/dashboard");
+    }
+  };
+
+  const handle2FACancel = () => {
+    setShow2FA(false);
+  };
+
+  if (show2FA) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <TwoFactorAuth onVerify={handle2FAVerify} onCancel={handle2FACancel} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
@@ -91,9 +119,16 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200"
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center"
           >
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
       </div>
