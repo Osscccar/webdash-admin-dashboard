@@ -1,3 +1,5 @@
+// src/contexts/AuthContext.tsx
+/* eslint-disable */
 "use client";
 
 import {
@@ -7,124 +9,69 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { set2FAVerified, is2FAVerified, clearAuth } from "@/lib/auth-utils";
 
-type User = {
-  username: string;
-  isAdmin: boolean;
-};
-
-type AuthContextType = {
-  user: User | null;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
+interface AuthContextType {
   isAuthenticated: boolean;
   is2FAVerified: boolean;
-  check2FAStatus: () => boolean;
   loading: boolean;
-};
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  login: () => false,
-  logout: () => {},
-  isAuthenticated: false,
-  is2FAVerified: false,
-  check2FAStatus: () => false,
-  loading: true,
-});
-
-export function useAuth() {
-  return useContext(AuthContext);
+  login: (username: string, password: string) => boolean;
+  logout: () => void;
+  complete2FAVerification: () => void;
 }
 
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [is2FAVerified, setIs2FAVerified] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [is2FAVerified, setIs2FAVerified] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Check authentication status on mount
   useEffect(() => {
-    // Check for authentication cookie
-    const authToken = getCookie("auth_token");
-    const twoFAVerified = getCookie("2fa_verified") === "true";
+    // Check for authentication in sessionStorage
+    const authStatus = sessionStorage.getItem("admin-auth");
+    setIsAuthenticated(authStatus === "true");
 
-    if (authToken) {
-      // Set user from cookie or local storage
-      try {
-        const userData = JSON.parse(localStorage.getItem("user") || "{}");
-        setUser(userData);
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
+    // Check for 2FA verification
+    setIs2FAVerified(is2FAVerified());
 
-    setIs2FAVerified(twoFAVerified);
     setLoading(false);
+  }, []);
 
-    // Redirect logic
-    if (!authToken && pathname !== "/login") {
-      router.push("/login");
-    } else if (authToken && !twoFAVerified && pathname !== "/login") {
-      router.push("/login?require2fa=true");
-    }
-  }, [pathname, router]);
-
-  // Login function
   const login = (username: string, password: string): boolean => {
-    // Replace with your actual authentication logic
-    // In a real app, you would call an API to validate credentials
-    const validCredentials = username === "admin" && password === "lumix123";
+    // Hard-coded admin credentials (in real app, use environment variables)
+    const validUsername = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
+    const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
-    if (validCredentials) {
-      const userData = { username, isAdmin: true };
-
-      // Store user data in localStorage for persistence
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      // Set auth cookie
-      document.cookie = `auth_token=true; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
-
-      setUser(userData);
+    if (username === validUsername && password === validPassword) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem("admin-auth", "true");
       return true;
     }
-
     return false;
   };
 
-  // Logout function
   const logout = () => {
-    // Clear user data
-    setUser(null);
-    localStorage.removeItem("user");
-
-    // Clear cookies
-    document.cookie = "auth_token=; path=/; max-age=0";
-    document.cookie = "2fa_verified=; path=/; max-age=0";
-
-    // Redirect to login
-    router.push("/login");
+    setIsAuthenticated(false);
+    setIs2FAVerified(false);
+    sessionStorage.removeItem("admin-auth");
+    clearAuth(); // Clear 2FA verification
   };
 
-  // Check 2FA status
-  const check2FAStatus = () => {
-    const twoFAVerified = getCookie("2fa_verified") === "true";
-    setIs2FAVerified(twoFAVerified);
-    return twoFAVerified;
+  const complete2FAVerification = () => {
+    setIs2FAVerified(true);
+    set2FAVerified(true); // This sets the cookie
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
+        isAuthenticated,
+        is2FAVerified,
+        loading,
         login,
         logout,
-        isAuthenticated: !!user,
-        is2FAVerified,
-        check2FAStatus,
-        loading,
+        complete2FAVerification,
       }}
     >
       {children}
@@ -132,14 +79,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Helper function to get cookie by name
-function getCookie(name: string): string | undefined {
-  const cookies = document.cookie.split(";");
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim();
-    if (cookie.startsWith(name + "=")) {
-      return cookie.substring(name.length + 1);
-    }
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return undefined;
+  return context;
 }

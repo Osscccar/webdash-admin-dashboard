@@ -15,8 +15,10 @@ export async function middleware(request: NextRequest) {
 
   // Protect all dashboard routes
   if (pathname.startsWith("/dashboard") || pathname === "/") {
-    // Check if user is logged in via your auth cookie/token
-    const isLoggedIn = !!request.cookies.get("auth_token")?.value;
+    // Check if user is logged in
+    const isLoggedIn =
+      request.cookies.get("auth_token")?.value === "true" ||
+      request.cookies.get("admin-auth")?.value === "true";
 
     if (!isLoggedIn) {
       // Redirect to login page

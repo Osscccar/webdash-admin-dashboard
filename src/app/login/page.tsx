@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [show2FA, setShow2FA] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, complete2FAVerification } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Attempt login
+      // Attempt login with existing credentials
       const success = login(username, password);
 
       if (success) {
@@ -42,6 +42,8 @@ export default function LoginPage() {
 
   const handle2FAVerify = (verified: boolean) => {
     if (verified) {
+      // Update the auth context to indicate 2FA is verified
+      complete2FAVerification();
       toast.success("Login successful");
       router.push("/dashboard");
     }
