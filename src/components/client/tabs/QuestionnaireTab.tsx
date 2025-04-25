@@ -14,6 +14,7 @@ import type { UserData, WebsiteEntry, FileUpload } from "@/types";
 import { renderQuestionnaireField } from "@/components/client/utils";
 import { parseDomainValue } from "@/components/client/utils";
 import { CollapsibleSection } from "@/components/client/CollapsibleSection";
+import { getStringValue } from "@/utils/stringHelpers";
 import Image from "next/image";
 
 interface QuestionnaireTabProps {
@@ -284,19 +285,23 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                     {userData.questionnaireAnswers.currentWebsiteUrl ? (
                       <a
                         href={
-                          (
-                            userData.questionnaireAnswers
-                              .currentWebsiteUrl as string
+                          getStringValue(
+                            userData.questionnaireAnswers.currentWebsiteUrl
                           ).startsWith("http")
-                            ? (userData.questionnaireAnswers
-                                .currentWebsiteUrl as string)
-                            : `https://${userData.questionnaireAnswers.currentWebsiteUrl}`
+                            ? getStringValue(
+                                userData.questionnaireAnswers.currentWebsiteUrl
+                              )
+                            : `https://${getStringValue(
+                                userData.questionnaireAnswers.currentWebsiteUrl
+                              )}`
                         }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline flex items-center text-sm"
                       >
-                        {userData.questionnaireAnswers.currentWebsiteUrl}
+                        {getStringValue(
+                          userData.questionnaireAnswers.currentWebsiteUrl
+                        )}
                         <ExternalLink className="h-3 w-3 ml-1" />
                       </a>
                     ) : (
@@ -376,7 +381,9 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                       Domain Provider
                     </p>
                     <p className="text-sm text-gray-800">
-                      {userData.questionnaireAnswers.domainProvider}
+                      {getStringValue(
+                        userData.questionnaireAnswers.domainProvider
+                      )}
                     </p>
                   </div>
                 )}

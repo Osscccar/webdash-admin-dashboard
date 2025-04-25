@@ -11,6 +11,7 @@ import {
   Calendar,
 } from "lucide-react";
 import type { UserData } from "@/types";
+import { getStringValue } from "@/utils/stringHelpers";
 
 interface AnalyticsTabProps {
   userData: UserData;

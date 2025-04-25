@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
-import { Globe, Info } from "lucide-react";
+import { Globe, Info, Mail } from "lucide-react";
 import type { UserData } from "@/types";
 
 interface DomainTabProps {
@@ -21,6 +21,24 @@ interface DomainTabProps {
   ) => void;
 }
 
+// Helper function to safely convert questionnaireAnswers values to string
+const getStringValue = (value: any): string => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  // For complex types, return a meaningful string or empty
+  if (typeof value === "object") {
+    return "[Complex Value]";
+  }
+
+  return String(value);
+};
+
 export const DomainTab: React.FC<DomainTabProps> = ({
   userData,
   domainInfo,
@@ -31,6 +49,28 @@ export const DomainTab: React.FC<DomainTabProps> = ({
     domainInfo.isCustom ? "custom" : "free"
   );
 
+  // Safely get provider as string
+  const domainProvider = userData.questionnaireAnswers?.domainProvider
+    ? getStringValue(userData.questionnaireAnswers.domainProvider)
+    : "";
+
+  // Safely get other domain-related values
+  const hasDomain = userData.questionnaireAnswers?.hasDomain
+    ? getStringValue(userData.questionnaireAnswers.hasDomain)
+    : "";
+
+  const domainName = userData.questionnaireAnswers?.domainName
+    ? getStringValue(userData.questionnaireAnswers.domainName)
+    : "";
+
+  const domainOption = userData.questionnaireAnswers?.domainOption
+    ? getStringValue(userData.questionnaireAnswers.domainOption)
+    : "";
+
+  const customDomainName = userData.questionnaireAnswers?.customDomainName
+    ? getStringValue(userData.questionnaireAnswers.customDomainName)
+    : "";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
@@ -38,6 +78,41 @@ export const DomainTab: React.FC<DomainTabProps> = ({
           <Globe className="h-5 w-5 mr-2 text-blue-600" />
           Domain Management
         </h2>
+      </div>
+
+      {/* Contact Information */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <h3 className="text-lg font-medium text-gray-800 mb-4">
+          Client Contact Information
+        </h3>
+
+        <div className="flex items-center bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div className="bg-blue-100 rounded-full p-2 mr-4">
+            <Mail className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-lg font-medium text-gray-800">
+              {userData.email}
+            </p>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {userData.firstName && userData.lastName && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                  {userData.firstName} {userData.lastName}
+                </span>
+              )}
+              {userData.phoneNumber && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                  {userData.phoneNumber}
+                </span>
+              )}
+              {userData.questionnaireAnswers?.businessName && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                  {getStringValue(userData.questionnaireAnswers.businessName)}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Current Domain Information */}
@@ -70,9 +145,9 @@ export const DomainTab: React.FC<DomainTabProps> = ({
                         : "Free Domain (Included)"}
                     </span>
 
-                    {userData.questionnaireAnswers?.domainProvider && (
+                    {domainProvider && (
                       <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                        Provider: {userData.questionnaireAnswers.domainProvider}
+                        Provider: {domainProvider}
                       </span>
                     )}
                   </div>
@@ -106,10 +181,7 @@ export const DomainTab: React.FC<DomainTabProps> = ({
                     type="text"
                     id="domain-provider"
                     placeholder="Enter domain provider (e.g., GoDaddy, Namecheap)"
-                    defaultValue={
-                      (userData.questionnaireAnswers
-                        ?.domainProvider as string) || ""
-                    }
+                    defaultValue={domainProvider}
                     className="flex-1 bg-white border border-gray-300 rounded-l-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <button
@@ -148,6 +220,86 @@ export const DomainTab: React.FC<DomainTabProps> = ({
             </p>
           </div>
         )}
+      </div>
+
+      {/* Questionnaire Domain Information */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <h3 className="text-lg font-medium text-gray-800 mb-4">
+          Questionnaire Domain Information
+        </h3>
+
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          {hasDomain ? (
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <div className="font-medium text-gray-700 w-32">
+                  Has Domain:
+                </div>
+                <div className="text-gray-800">{hasDomain}</div>
+              </div>
+
+              {hasDomain === "Yes" && (
+                <>
+                  <div className="flex items-center">
+                    <div className="font-medium text-gray-700 w-32">
+                      Domain Name:
+                    </div>
+                    <div className="text-gray-800">
+                      {domainName || "Not specified"}
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="font-medium text-gray-700 w-32">
+                      Domain Provider:
+                    </div>
+                    <div className="text-gray-800">
+                      {domainProvider || "Not specified"}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {hasDomain === "No" && (
+                <>
+                  <div className="flex items-center">
+                    <div className="font-medium text-gray-700 w-32">
+                      Domain Option:
+                    </div>
+                    <div className="text-gray-800">
+                      {domainOption || "Not specified"}
+                    </div>
+                  </div>
+
+                  {domainOption === "customDomain" && (
+                    <div className="flex items-center">
+                      <div className="font-medium text-gray-700 w-32">
+                        Custom Domain:
+                      </div>
+                      <div className="text-gray-800">
+                        {customDomainName || "Not specified"}
+                      </div>
+                    </div>
+                  )}
+
+                  {domainOption?.startsWith("domain:") && (
+                    <div className="flex items-center">
+                      <div className="font-medium text-gray-700 w-32">
+                        Selected Domain:
+                      </div>
+                      <div className="text-gray-800">
+                        {domainOption.replace("domain:", "")}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="text-gray-500 italic">
+              No domain information provided in questionnaire
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Add/Update Domain */}
@@ -256,10 +408,7 @@ export const DomainTab: React.FC<DomainTabProps> = ({
                   type="text"
                   id="domain-provider-input"
                   placeholder="Enter domain provider (e.g., GoDaddy, Namecheap)"
-                  defaultValue={
-                    (userData.questionnaireAnswers?.domainProvider as string) ||
-                    ""
-                  }
+                  defaultValue={domainProvider}
                   className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-2">
