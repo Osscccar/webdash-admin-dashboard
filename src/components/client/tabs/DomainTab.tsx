@@ -4,6 +4,7 @@ import type React from "react";
 import { useState } from "react";
 import { Globe, Info, Mail } from "lucide-react";
 import type { UserData } from "@/types";
+import { getStringValue } from "@/utils/stringHelpers";
 
 interface DomainTabProps {
   userData: UserData;
@@ -21,24 +22,6 @@ interface DomainTabProps {
   ) => void;
 }
 
-// Helper function to safely convert questionnaireAnswers values to string
-const getStringValue = (value: any): string => {
-  if (value === null || value === undefined) {
-    return "";
-  }
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  // For complex types, return a meaningful string or empty
-  if (typeof value === "object") {
-    return "[Complex Value]";
-  }
-
-  return String(value);
-};
-
 export const DomainTab: React.FC<DomainTabProps> = ({
   userData,
   domainInfo,
@@ -49,27 +32,49 @@ export const DomainTab: React.FC<DomainTabProps> = ({
     domainInfo.isCustom ? "custom" : "free"
   );
 
-  // Safely get provider as string
+  // Get domain provider as string
   const domainProvider = userData.questionnaireAnswers?.domainProvider
     ? getStringValue(userData.questionnaireAnswers.domainProvider)
     : "";
 
-  // Safely get other domain-related values
-  const hasDomain = userData.questionnaireAnswers?.hasDomain
-    ? getStringValue(userData.questionnaireAnswers.hasDomain)
-    : "";
+  // Parse professional emails from questionnaire answers
+  const getProfessionalEmails = () => {
+    if (!userData.questionnaireAnswers?.professionalEmails) return [];
 
-  const domainName = userData.questionnaireAnswers?.domainName
-    ? getStringValue(userData.questionnaireAnswers.domainName)
-    : "";
+    try {
+      // Professional emails should be stored as a JSON string array
+      const emailsString = getStringValue(
+        userData.questionnaireAnswers.professionalEmails
+      );
+      if (!emailsString) return [];
 
-  const domainOption = userData.questionnaireAnswers?.domainOption
-    ? getStringValue(userData.questionnaireAnswers.domainOption)
-    : "";
+      // Parse the JSON string
+      const emails = JSON.parse(emailsString);
+      return Array.isArray(emails) ? emails : [];
+    } catch (error) {
+      console.error("Error parsing professional emails:", error);
+      return [];
+    }
+  };
 
-  const customDomainName = userData.questionnaireAnswers?.customDomainName
-    ? getStringValue(userData.questionnaireAnswers.customDomainName)
-    : "";
+  // Get domain from domain info or questionnaire
+  const getDomainForEmails = () => {
+    if (domainInfo.name) return domainInfo.name;
+
+    // Try to get from questionnaire answers
+    if (userData.questionnaireAnswers?.customDomainName) {
+      return getStringValue(userData.questionnaireAnswers.customDomainName);
+    }
+
+    if (userData.questionnaireAnswers?.domainName) {
+      return getStringValue(userData.questionnaireAnswers.domainName);
+    }
+
+    return "example.com";
+  };
+
+  const professionalEmails = getProfessionalEmails();
+  const emailDomain = getDomainForEmails();
 
   return (
     <div className="space-y-6">
@@ -80,7 +85,7 @@ export const DomainTab: React.FC<DomainTabProps> = ({
         </h2>
       </div>
 
-      {/* Contact Information */}
+      {/* Client Contact Information */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
         <h3 className="text-lg font-medium text-gray-800 mb-4">
           Client Contact Information
@@ -222,6 +227,44 @@ export const DomainTab: React.FC<DomainTabProps> = ({
         )}
       </div>
 
+      {/* Professional Email Addresses */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <h3 className="text-lg font-medium text-gray-800 mb-4">
+          Professional Email Addresses
+        </h3>
+
+        {professionalEmails.length > 0 ? (
+          <div className="space-y-3">
+            {professionalEmails.map((email, index) => (
+              <div
+                key={index}
+                className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+              >
+                <div className="flex items-center">
+                  <Mail className="h-5 w-5 text-blue-600 mr-3" />
+                  <div>
+                    <p className="text-md font-medium text-gray-800">
+                      {email}@{emailDomain}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Professional email address {index + 1}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+            <Mail className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-600">No professional emails configured</p>
+            <p className="text-sm text-gray-500 mt-1">
+              The client has not set up any professional email addresses.
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Questionnaire Domain Information */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
         <h3 className="text-lg font-medium text-gray-800 mb-4">
@@ -229,23 +272,28 @@ export const DomainTab: React.FC<DomainTabProps> = ({
         </h3>
 
         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          {hasDomain ? (
+          {userData.questionnaireAnswers?.hasDomain ? (
             <div className="space-y-3">
               <div className="flex items-center">
                 <div className="font-medium text-gray-700 w-32">
                   Has Domain:
                 </div>
-                <div className="text-gray-800">{hasDomain}</div>
+                <div className="text-gray-800">
+                  {getStringValue(userData.questionnaireAnswers.hasDomain)}
+                </div>
               </div>
 
-              {hasDomain === "Yes" && (
+              {getStringValue(userData.questionnaireAnswers.hasDomain) ===
+                "Yes" && (
                 <>
                   <div className="flex items-center">
                     <div className="font-medium text-gray-700 w-32">
                       Domain Name:
                     </div>
                     <div className="text-gray-800">
-                      {domainName || "Not specified"}
+                      {getStringValue(
+                        userData.questionnaireAnswers.domainName
+                      ) || "Not specified"}
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -253,41 +301,65 @@ export const DomainTab: React.FC<DomainTabProps> = ({
                       Domain Provider:
                     </div>
                     <div className="text-gray-800">
-                      {domainProvider || "Not specified"}
+                      {getStringValue(
+                        userData.questionnaireAnswers.domainProvider
+                      ) || "Not specified"}
                     </div>
                   </div>
+
+                  {userData.questionnaireAnswers.existingDomainChoice && (
+                    <div className="flex items-center">
+                      <div className="font-medium text-gray-700 w-32">
+                        Domain Choice:
+                      </div>
+                      <div className="text-gray-800">
+                        {getStringValue(
+                          userData.questionnaireAnswers.existingDomainChoice
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 
-              {hasDomain === "No" && (
+              {getStringValue(userData.questionnaireAnswers.hasDomain) ===
+                "No" && (
                 <>
-                  <div className="flex items-center">
-                    <div className="font-medium text-gray-700 w-32">
-                      Domain Option:
-                    </div>
-                    <div className="text-gray-800">
-                      {domainOption || "Not specified"}
-                    </div>
-                  </div>
-
-                  {domainOption === "customDomain" && (
+                  {userData.questionnaireAnswers.wantFreeDomain && (
                     <div className="flex items-center">
                       <div className="font-medium text-gray-700 w-32">
-                        Custom Domain:
+                        Wants Free Domain:
                       </div>
                       <div className="text-gray-800">
-                        {customDomainName || "Not specified"}
+                        {getStringValue(
+                          userData.questionnaireAnswers.wantFreeDomain
+                        )}
                       </div>
                     </div>
                   )}
 
-                  {domainOption?.startsWith("domain:") && (
+                  {userData.questionnaireAnswers.customDomainName && (
                     <div className="flex items-center">
                       <div className="font-medium text-gray-700 w-32">
                         Selected Domain:
                       </div>
                       <div className="text-gray-800">
-                        {domainOption.replace("domain:", "")}
+                        {getStringValue(
+                          userData.questionnaireAnswers.customDomainName
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {userData.questionnaireAnswers.nonPremiumDomainOption && (
+                    <div className="flex items-center">
+                      <div className="font-medium text-gray-700 w-32">
+                        Domain Option:
+                      </div>
+                      <div className="text-gray-800">
+                        {getStringValue(
+                          userData.questionnaireAnswers.nonPremiumDomainOption
+                        )}
                       </div>
                     </div>
                   )}
