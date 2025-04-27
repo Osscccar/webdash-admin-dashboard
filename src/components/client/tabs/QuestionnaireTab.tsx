@@ -9,9 +9,24 @@ import {
   Palette,
   Database,
   ExternalLink,
+  Clock,
+  MapPin,
+  Phone,
+  Mail,
+  Briefcase,
+  MessageSquare,
+  Target,
+  Layers,
+  Share2,
 } from "lucide-react";
-import type { UserData, WebsiteEntry, FileUpload } from "@/types";
-import { renderQuestionnaireField } from "@/components/client/utils";
+import type {
+  UserData,
+  WebsiteEntry,
+  FileUpload,
+  Service,
+  SocialMediaLink,
+  TeamMember,
+} from "@/types";
 import { parseDomainValue } from "@/components/client/utils";
 import { CollapsibleSection } from "@/components/client/CollapsibleSection";
 import { getStringValue } from "@/utils/stringHelpers";
@@ -28,6 +43,100 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
     (userData.questionnaireAnswers?.customDomainName ||
       userData.questionnaireAnswers?.domainName) as string
   );
+
+  const renderField = (field: any): React.ReactNode => {
+    if (field === undefined || field === null) {
+      return "";
+    }
+
+    // If the original renderField can handle this type, use it
+    try {
+      // For types the original function can handle
+      if (
+        typeof field === "string" ||
+        typeof field === "number" ||
+        (Array.isArray(field) &&
+          (field.length === 0 || typeof field[0] === "string"))
+      ) {
+        return renderField(field);
+      }
+    } catch (e) {
+      // Fall back to our own handling
+    }
+
+    // Custom handling for types the original function can't handle
+    if (Array.isArray(field)) {
+      if (field.length === 0) return "";
+
+      // Handle arrays of objects with name/title properties
+      if (typeof field[0] === "object") {
+        return field
+          .map((item) => {
+            if (item && typeof item === "object") {
+              if ("name" in item) return item.name;
+              if ("platform" in item && "url" in item)
+                return `${item.platform}: ${item.url}`;
+            }
+            return String(item);
+          })
+          .join(", ");
+      }
+
+      return field.map((item) => String(item)).join(", ");
+    }
+
+    if (typeof field === "object") {
+      if (field === null) return "";
+      if ("name" in field) return field.name;
+      if ("url" in field) return field.url;
+      return JSON.stringify(field);
+    }
+
+    return String(field);
+  };
+
+  // Helper function to parse business hours
+  const renderBusinessHours = () => {
+    if (!userData.questionnaireAnswers?.businessHours) return null;
+
+    const daysOfWeek = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {daysOfWeek.map((day) => {
+          const hoursKey = `${day.toLowerCase()}Hours`;
+          const hours =
+            userData.questionnaireAnswers?.businessHours?.[hoursKey];
+
+          return (
+            <div
+              key={day}
+              className="flex items-center justify-between py-1 border-b border-gray-200"
+            >
+              <span className="text-sm font-medium text-gray-700">{day}</span>
+              <span className="text-sm text-gray-800">
+                {hours === "closed" ? (
+                  <span className="text-red-500">Closed</span>
+                ) : hours ? (
+                  hours
+                ) : (
+                  <span className="text-gray-400">Not specified</span>
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -50,17 +159,13 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-xs text-gray-500 mb-1">Business Name</p>
                 <p className="text-sm font-medium text-gray-800">
-                  {renderQuestionnaireField(
-                    userData.questionnaireAnswers.businessName
-                  )}
+                  {renderField(userData.questionnaireAnswers.businessName)}
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-xs text-gray-500 mb-1">Business Tagline</p>
                 <p className="text-sm text-gray-800">
-                  {renderQuestionnaireField(
-                    userData.questionnaireAnswers.businessTagline
-                  )}
+                  {renderField(userData.questionnaireAnswers.businessTagline)}
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -68,27 +173,33 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   Business Description
                 </p>
                 <p className="text-sm text-gray-800">
-                  {renderQuestionnaireField(
+                  {renderField(
                     userData.questionnaireAnswers.businessDescription
                   )}
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-xs text-gray-500 mb-1">
-                  Services & Products
-                </p>
+                <p className="text-xs text-gray-500 mb-1">Years in Business</p>
                 <p className="text-sm text-gray-800">
-                  {renderQuestionnaireField(
-                    userData.questionnaireAnswers.servicesProducts
-                  )}
+                  {renderField(userData.questionnaireAnswers.yearsInBusiness)}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Business Industry</p>
+                <p className="text-sm text-gray-800">
+                  {renderField(userData.questionnaireAnswers.businessIndustry)}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Business Goals</p>
+                <p className="text-sm text-gray-800">
+                  {renderField(userData.questionnaireAnswers.businessGoals)}
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-xs text-gray-500 mb-1">Target Audience</p>
                 <p className="text-sm text-gray-800">
-                  {renderQuestionnaireField(
-                    userData.questionnaireAnswers.targetAudience
-                  )}
+                  {renderField(userData.questionnaireAnswers.targetAudience)}
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -96,18 +207,176 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   Business Unique Selling Points
                 </p>
                 <p className="text-sm text-gray-800">
-                  {renderQuestionnaireField(
-                    userData.questionnaireAnswers.businessUnique
-                  )}
+                  {renderField(userData.questionnaireAnswers.businessUnique)}
                 </p>
               </div>
             </div>
           </CollapsibleSection>
 
+          {/* Website Type */}
+          <CollapsibleSection
+            title="Website Type"
+            icon={<Globe className="h-5 w-5 text-blue-600" />}
+            defaultOpen={true}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Website Type</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {renderField(userData.questionnaireAnswers.websiteType)}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">
+                  Primary Call to Action
+                </p>
+                <p className="text-sm text-gray-800">
+                  {renderField(userData.questionnaireAnswers.primaryCTA)}
+                </p>
+              </div>
+            </div>
+          </CollapsibleSection>
+
+          {/* Services & Products */}
+          <CollapsibleSection
+            title="Services & Products"
+            icon={<Layers className="h-5 w-5 text-blue-600" />}
+            defaultOpen={true}
+          >
+            {userData.questionnaireAnswers.services &&
+            Array.isArray(userData.questionnaireAnswers.services) &&
+            userData.questionnaireAnswers.services.length > 0 ? (
+              <div className="space-y-4">
+                {userData.questionnaireAnswers.services.map(
+                  (service: Service, index: number) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 p-4 rounded-lg border border-gray-200"
+                    >
+                      <div className="flex items-start">
+                        {service.image && (
+                          <div className="w-16 h-16 bg-white rounded-md overflow-hidden mr-4 border border-gray-200 flex-shrink-0">
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={service.image.url}
+                                alt={service.name}
+                                layout="fill"
+                                objectFit="cover"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-800">
+                            {service.name}
+                          </h4>
+                          {service.price && (
+                            <p className="text-xs text-blue-600">
+                              {service.price}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-600 mt-1">
+                            {service.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500">No services provided</p>
+              </div>
+            )}
+          </CollapsibleSection>
+
+          {/* Team Members */}
+          <CollapsibleSection
+            title="Team Members"
+            icon={<Users className="h-5 w-5 text-blue-600" />}
+            defaultOpen={true}
+          >
+            {userData.questionnaireAnswers.teamMembers &&
+            Array.isArray(userData.questionnaireAnswers.teamMembers) &&
+            userData.questionnaireAnswers.teamMembers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {userData.questionnaireAnswers.teamMembers.map(
+                  (member: TeamMember, index: number) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 p-4 rounded-lg border border-gray-200"
+                    >
+                      <div className="flex items-start">
+                        {member.image ? (
+                          <div className="w-16 h-16 bg-white rounded-full overflow-hidden mr-4 border border-gray-200 flex-shrink-0">
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={member.image.url}
+                                alt={member.name}
+                                layout="fill"
+                                objectFit="cover"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                            <Users className="h-8 w-8 text-gray-400" />
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-800">
+                            {member.name}
+                          </h4>
+                          <p className="text-xs text-gray-600">
+                            {member.position}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {member.description}
+                          </p>
+
+                          {member.socialMedia &&
+                            member.socialMedia.length > 0 && (
+                              <div className="flex gap-2 mt-2">
+                                {member.socialMedia.map(
+                                  (social, socialIndex) => (
+                                    <a
+                                      key={socialIndex}
+                                      href={
+                                        social.url.startsWith("http")
+                                          ? social.url
+                                          : `https://${social.url}`
+                                      }
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:text-blue-800"
+                                      title={social.platform}
+                                    >
+                                      <Globe className="h-3 w-3" />
+                                    </a>
+                                  )
+                                )}
+                              </div>
+                            )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500">
+                  No team members provided
+                </p>
+              </div>
+            )}
+          </CollapsibleSection>
+
           {/* Competitors */}
           <CollapsibleSection
             title="Competitors"
-            icon={<Globe className="h-5 w-5 text-blue-600" />}
+            icon={<Briefcase className="h-5 w-5 text-blue-600" />}
             defaultOpen={true}
           >
             {userData.questionnaireAnswers.competitors &&
@@ -231,33 +500,171 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                 </div>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-xs text-gray-500 mb-1">
-                  Desired Visitor Actions
-                </p>
+                <p className="text-xs text-gray-500 mb-1">Content Tone</p>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {userData.questionnaireAnswers.desiredVisitorActions &&
-                  Array.isArray(
-                    userData.questionnaireAnswers.desiredVisitorActions
-                  ) ? (
-                    userData.questionnaireAnswers.desiredVisitorActions.map(
-                      (action: string, index: number) => (
+                  {userData.questionnaireAnswers.contentTone &&
+                  Array.isArray(userData.questionnaireAnswers.contentTone) ? (
+                    userData.questionnaireAnswers.contentTone.map(
+                      (tone, index) => (
                         <span
                           key={index}
                           className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md border border-gray-200"
                         >
-                          {action}
+                          {tone}
                         </span>
                       )
                     )
+                  ) : userData.questionnaireAnswers.contentTone ? (
+                    <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md border border-gray-200">
+                      {getStringValue(
+                        userData.questionnaireAnswers.contentTone
+                      )}
+                    </span>
                   ) : (
                     <span className="text-sm text-gray-500">
-                      No actions specified
+                      No content tone specified
                     </span>
                   )}
                 </div>
               </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">
+                  Hero Image Preference
+                </p>
+                <p className="text-sm text-gray-800">
+                  {renderField(userData.questionnaireAnswers.heroImageOption)}
+                </p>
+                {userData.questionnaireAnswers.heroImageUpload && (
+                  <div className="mt-2 flex items-center">
+                    <div className="w-16 h-10 bg-white rounded-md overflow-hidden mr-2 border border-gray-200">
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={
+                            (
+                              userData.questionnaireAnswers
+                                .heroImageUpload as FileUpload
+                            ).url
+                          }
+                          alt="Hero Image"
+                          layout="fill"
+                          objectFit="cover"
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-600">
+                      Uploaded hero image
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </CollapsibleSection>
+
+          {/* Social Media */}
+          <CollapsibleSection
+            title="Social Media"
+            icon={<Share2 className="h-5 w-5 text-blue-600" />}
+            defaultOpen={true}
+          >
+            {userData.questionnaireAnswers.socialMediaLinks &&
+            Array.isArray(userData.questionnaireAnswers.socialMediaLinks) &&
+            userData.questionnaireAnswers.socialMediaLinks.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {userData.questionnaireAnswers.socialMediaLinks.map(
+                  (social: SocialMediaLink, index: number) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center"
+                    >
+                      <div className="bg-blue-100 rounded-full p-2 mr-3 flex-shrink-0">
+                        <Globe className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-800">
+                          {social.platform}
+                        </p>
+                        {social.url && (
+                          <a
+                            href={
+                              social.url.startsWith("http")
+                                ? social.url
+                                : `https://${social.url}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:underline flex items-center"
+                          >
+                            {social.url}
+                            <ExternalLink className="h-3 w-3 ml-1" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500">
+                  No social media links provided
+                </p>
+              </div>
+            )}
+          </CollapsibleSection>
+
+          {/* Contact Information */}
+          <CollapsibleSection
+            title="Contact Information"
+            icon={<Phone className="h-5 w-5 text-blue-600" />}
+            defaultOpen={true}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Phone Number</p>
+                <div className="flex items-center">
+                  <Phone className="h-4 w-4 text-gray-500 mr-2" />
+                  <p className="text-sm text-gray-800">
+                    {renderField(userData.questionnaireAnswers.phoneNumber)}
+                  </p>
+                </div>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Email Address</p>
+                <div className="flex items-center">
+                  <Mail className="h-4 w-4 text-gray-500 mr-2" />
+                  <p className="text-sm text-gray-800">
+                    {renderField(userData.questionnaireAnswers.emailAddress)}
+                  </p>
+                </div>
+              </div>
+              {userData.questionnaireAnswers.businessAddress && (
+                <div className="bg-gray-50 p-4 rounded-lg md:col-span-2">
+                  <p className="text-xs text-gray-500 mb-1">Business Address</p>
+                  <div className="flex items-start">
+                    <MapPin className="h-4 w-4 text-gray-500 mr-2 mt-0.5" />
+                    <p className="text-sm text-gray-800">
+                      {getStringValue(
+                        userData.questionnaireAnswers.businessAddress
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CollapsibleSection>
+
+          {/* Business Hours */}
+          {userData.questionnaireAnswers.businessHours && (
+            <CollapsibleSection
+              title="Business Hours"
+              icon={<Clock className="h-5 w-5 text-blue-600" />}
+              defaultOpen={true}
+            >
+              <div className="bg-gray-50 p-4 rounded-lg">
+                {renderBusinessHours()}
+              </div>
+            </CollapsibleSection>
+          )}
 
           {/* Current Website Information */}
           <CollapsibleSection
@@ -271,9 +678,7 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   Has Current Website
                 </p>
                 <p className="text-sm font-medium text-gray-800">
-                  {renderQuestionnaireField(
-                    userData.questionnaireAnswers.hasCurrentWebsite
-                  )}
+                  {renderField(userData.questionnaireAnswers.hasCurrentWebsite)}
                 </p>
               </div>
               {userData.questionnaireAnswers.hasCurrentWebsite === "Yes" && (
@@ -311,9 +716,7 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-xs text-gray-500 mb-1">Current CMS</p>
                     <p className="text-sm text-gray-800">
-                      {renderQuestionnaireField(
-                        userData.questionnaireAnswers.currentCms
-                      )}
+                      {renderField(userData.questionnaireAnswers.currentCms)}
                     </p>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
@@ -321,9 +724,7 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                       Current Website Likes
                     </p>
                     <p className="text-sm text-gray-800">
-                      {renderQuestionnaireField(
-                        userData.questionnaireAnswers.websiteLikes
-                      )}
+                      {renderField(userData.questionnaireAnswers.websiteLikes)}
                     </p>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
@@ -331,7 +732,7 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                       Current Website Dislikes
                     </p>
                     <p className="text-sm text-gray-800">
-                      {renderQuestionnaireField(
+                      {renderField(
                         userData.questionnaireAnswers.websiteDislikes
                       )}
                     </p>
@@ -387,6 +788,56 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                     </p>
                   </div>
                 )}
+
+              {userData.questionnaireAnswers.professionalEmails && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 mb-1">
+                    Professional Emails
+                  </p>
+                  <div className="space-y-1 mt-2">
+                    {(() => {
+                      try {
+                        const emails = JSON.parse(
+                          getStringValue(
+                            userData.questionnaireAnswers.professionalEmails
+                          )
+                        );
+                        if (Array.isArray(emails) && emails.length > 0) {
+                          const domain =
+                            domainInfo.name ||
+                            getStringValue(
+                              userData.questionnaireAnswers.customDomainName
+                            ) ||
+                            getStringValue(
+                              userData.questionnaireAnswers.domainName
+                            ) ||
+                            "example.com";
+
+                          return emails.map((email, index) => (
+                            <div key={index} className="flex items-center">
+                              <Mail className="h-3 w-3 text-gray-400 mr-2" />
+                              <p className="text-xs text-gray-800">
+                                {email}@{domain}
+                              </p>
+                            </div>
+                          ));
+                        }
+                        return (
+                          <p className="text-xs text-gray-500">
+                            No email addresses configured
+                          </p>
+                        );
+                      } catch (e) {
+                        return (
+                          <p className="text-xs text-gray-500">
+                            Email configuration not valid
+                          </p>
+                        );
+                      }
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           </CollapsibleSection>
 
@@ -469,6 +920,112 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                 )}
               </div>
 
+              {/* Favicon */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-2">Favicon</p>
+                {userData.questionnaireAnswers.faviconUpload &&
+                typeof userData.questionnaireAnswers.faviconUpload ===
+                  "object" &&
+                "url" in userData.questionnaireAnswers.faviconUpload ? (
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={
+                            (
+                              userData.questionnaireAnswers
+                                .faviconUpload as FileUpload
+                            ).url || "/placeholder.svg"
+                          }
+                          alt="Favicon"
+                          layout="fill"
+                          objectFit="contain"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800">
+                        {
+                          (
+                            userData.questionnaireAnswers
+                              .faviconUpload as FileUpload
+                          ).name
+                        }
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {(
+                          (
+                            userData.questionnaireAnswers
+                              .faviconUpload as FileUpload
+                          ).size / 1024
+                        ).toFixed(1)}{" "}
+                        KB
+                      </p>
+                    </div>
+
+                    <a
+                      href={
+                        (
+                          userData.questionnaireAnswers
+                            .faviconUpload as FileUpload
+                        ).url
+                      }
+                      download
+                      className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 p-1.5 rounded-lg transition-colors duration-200 cursor-pointer"
+                      title="Download"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                ) : userData.questionnaireAnswers.logoUpload ? (
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={
+                            (
+                              userData.questionnaireAnswers
+                                .logoUpload as FileUpload
+                            ).url || "/placeholder.svg"
+                          }
+                          alt="Logo used as Favicon"
+                          layout="fill"
+                          objectFit="contain"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800">
+                        Using logo as favicon
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {
+                          (
+                            userData.questionnaireAnswers
+                              .logoUpload as FileUpload
+                          ).name
+                        }
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">No favicon uploaded</p>
+                )}
+              </div>
+
               {/* Team Photos */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-xs text-gray-500 mb-2">Team Photos</p>
@@ -531,6 +1088,75 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   </p>
                 )}
               </div>
+
+              {/* Hero Image */}
+              {userData.questionnaireAnswers.heroImageUpload && (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-2">Hero Image</p>
+                  <div className="flex items-center">
+                    <div className="w-24 h-16 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={
+                            (
+                              userData.questionnaireAnswers
+                                .heroImageUpload as FileUpload
+                            ).url || "/placeholder.svg"
+                          }
+                          alt="Hero Image"
+                          layout="fill"
+                          objectFit="cover"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800">
+                        {
+                          (
+                            userData.questionnaireAnswers
+                              .heroImageUpload as FileUpload
+                          ).name
+                        }
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {(
+                          (
+                            userData.questionnaireAnswers
+                              .heroImageUpload as FileUpload
+                          ).size / 1024
+                        ).toFixed(1)}{" "}
+                        KB
+                      </p>
+                    </div>
+                    <a
+                      href={
+                        (
+                          userData.questionnaireAnswers
+                            .heroImageUpload as FileUpload
+                        ).url
+                      }
+                      download
+                      className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 p-1.5 rounded-lg transition-colors duration-200 cursor-pointer"
+                      title="Download"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </CollapsibleSection>
 
@@ -540,13 +1166,26 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
             icon={<FileText className="h-5 w-5 text-blue-600" />}
             defaultOpen={true}
           >
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">Content Readiness</p>
-              <p className="text-sm font-medium text-gray-800">
-                {renderQuestionnaireField(
-                  userData.questionnaireAnswers.contentReady
-                )}
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Content Readiness</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {renderField(userData.questionnaireAnswers.contentReady)}
+                </p>
+              </div>
+
+              {userData.questionnaireAnswers.additionalContent && (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">
+                    Additional Content Information
+                  </p>
+                  <p className="text-sm text-gray-800">
+                    {renderField(
+                      userData.questionnaireAnswers.additionalContent
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
           </CollapsibleSection>
         </div>
