@@ -8,6 +8,13 @@ const nextConfig = {
   },
   reactStrictMode: true,
   poweredByHeader: false,
+  images: {
+    domains: [
+      'firebasestorage.googleapis.com',
+      'lh3.googleusercontent.com', // For Google profile pics if you're using Google auth
+      'storage.googleapis.com'     // Alternative Firebase Storage domain
+    ]
+  }
   env: {
     NEXT_PUBLIC_ADMIN_USERNAME: process.env.ADMIN_USERNAME,
     NEXT_PUBLIC_ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
