@@ -446,16 +446,19 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                       className="bg-gray-50 p-4 rounded-lg border border-gray-200"
                     >
                       <div className="flex items-start">
-                        {service.image && (
+                        {service.image && service.image.url ? (
                           <div className="w-16 h-16 bg-white rounded-md overflow-hidden mr-4 border border-gray-200 flex-shrink-0">
-                            <div className="relative w-full h-full">
-                              <Image
-                                src={service.image.url}
-                                alt={service.name}
-                                fill
-                                style={{ objectFit: "cover" }}
-                              />
-                            </div>
+                            <Image
+                              src={service.image.url}
+                              alt={service.name || `Service ${index + 1}`}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-4 flex-shrink-0">
+                            <Layers className="h-8 w-8 text-gray-400" />
                           </div>
                         )}
                         <div>
@@ -507,16 +510,15 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                       className="bg-gray-50 p-4 rounded-lg border border-gray-200"
                     >
                       <div className="flex items-start">
-                        {member.image ? (
+                        {member.image && member.image.url ? (
                           <div className="w-16 h-16 bg-white rounded-full overflow-hidden mr-4 border border-gray-200 flex-shrink-0">
-                            <div className="relative w-full h-full">
-                              <Image
-                                src={member.image.url}
-                                alt={member.name}
-                                fill
-                                style={{ objectFit: "cover" }}
-                              />
-                            </div>
+                            <Image
+                              src={member.image.url}
+                              alt={member.name || `Team member ${index + 1}`}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                         ) : (
                           <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
@@ -709,19 +711,18 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   {userData.questionnaireAnswers.heroImageUpload && (
                     <div className="mt-2 flex items-center">
                       <div className="w-16 h-10 bg-white rounded-md overflow-hidden mr-2 border border-gray-200">
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={
-                              (
-                                userData.questionnaireAnswers
-                                  .heroImageUpload as FileUpload
-                              ).url
-                            }
-                            alt="Hero Image"
-                            fill
-                            style={{ objectFit: "cover" }}
-                          />
-                        </div>
+                        <Image
+                          src={
+                            (
+                              userData.questionnaireAnswers
+                                .heroImageUpload as FileUpload
+                            ).url
+                          }
+                          alt="Hero Image"
+                          width={64}
+                          height={40}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <span className="text-xs text-gray-600">
                         Uploaded hero image
@@ -768,7 +769,6 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
             </div>
           </CollapsibleSection>
         )}
-
         {/* Social Media */}
         {hasData(userData.questionnaireAnswers.socialMediaLinks) && (
           <CollapsibleSection
@@ -1174,19 +1174,18 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   <p className="text-xs text-gray-500 mb-2">Logo</p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={
-                            (
-                              userData.questionnaireAnswers
-                                .logoUpload as FileUpload
-                            ).url || "/placeholder.svg"
-                          }
-                          alt="Logo"
-                          fill
-                          style={{ objectFit: "contain" }}
-                        />
-                      </div>
+                      <Image
+                        src={
+                          (
+                            userData.questionnaireAnswers
+                              .logoUpload as FileUpload
+                          ).url || "/placeholder.svg"
+                        }
+                        alt="Logo"
+                        width={48}
+                        height={48}
+                        className="object-contain"
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-gray-800">
@@ -1247,19 +1246,18 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   "url" in userData.questionnaireAnswers.faviconUpload ? (
                     <div className="flex items-center">
                       <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={
-                              (
-                                userData.questionnaireAnswers
-                                  .faviconUpload as FileUpload
-                              ).url || "/placeholder.svg"
-                            }
-                            alt="Favicon"
-                            fill
-                            style={{ objectFit: "contain" }}
-                          />
-                        </div>
+                        <Image
+                          src={
+                            (
+                              userData.questionnaireAnswers
+                                .faviconUpload as FileUpload
+                            ).url || "/placeholder.svg"
+                          }
+                          alt="Favicon"
+                          width={48}
+                          height={48}
+                          className="object-contain"
+                        />
                       </div>
                       <div className="flex-1">
                         <p className="text-sm text-gray-800">
@@ -1311,19 +1309,18 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   ) : userData.questionnaireAnswers.logoUpload ? (
                     <div className="flex items-center">
                       <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={
-                              (
-                                userData.questionnaireAnswers
-                                  .logoUpload as FileUpload
-                              ).url || "/placeholder.svg"
-                            }
-                            alt="Logo used as Favicon"
-                            fill
-                            style={{ objectFit: "contain" }}
-                          />
-                        </div>
+                        <Image
+                          src={
+                            (
+                              userData.questionnaireAnswers
+                                .logoUpload as FileUpload
+                            ).url || "/placeholder.svg"
+                          }
+                          alt="Logo used as Favicon"
+                          width={48}
+                          height={48}
+                          className="object-contain"
+                        />
                       </div>
                       <div className="flex-1">
                         <p className="text-sm text-gray-800">
@@ -1344,7 +1341,6 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   )}
                 </div>
               )}
-
               {/* Team Photos */}
               {hasData(userData.questionnaireAnswers.teamPhotos) && (
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -1357,36 +1353,35 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                           key={index}
                           className="aspect-square bg-white rounded-md flex items-center justify-center overflow-hidden border border-gray-200 relative group"
                         >
-                          <div className="relative w-full h-full">
-                            <Image
-                              src={photo.url || "/placeholder.svg"}
-                              alt={`Team photo ${index + 1}`}
-                              fill
-                              style={{ objectFit: "cover" }}
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <a
-                                href={photo.url}
-                                download
-                                className="bg-white hover:bg-gray-50 text-gray-700 p-1.5 rounded-full transition-colors duration-200 cursor-pointer"
-                                title="Download"
+                          <Image
+                            src={photo.url || "/placeholder.svg"}
+                            alt={`Team photo ${index + 1}`}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <a
+                              href={photo.url}
+                              download
+                              className="bg-white hover:bg-gray-50 text-gray-700 p-1.5 rounded-full transition-colors duration-200 cursor-pointer"
+                              title="Download"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-4 w-4"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                  />
-                                </svg>
-                              </a>
-                            </div>
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                />
+                              </svg>
+                            </a>
                           </div>
                         </div>
                       ))}
@@ -1411,19 +1406,18 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
                   <p className="text-xs text-gray-500 mb-2">Hero Image</p>
                   <div className="flex items-center">
                     <div className="w-24 h-16 bg-white rounded-md flex items-center justify-center overflow-hidden mr-3 border border-gray-200">
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={
-                            (
-                              userData.questionnaireAnswers
-                                .heroImageUpload as FileUpload
-                            ).url || "/placeholder.svg"
-                          }
-                          alt="Hero Image"
-                          fill
-                          style={{ objectFit: "cover" }}
-                        />
-                      </div>
+                      <Image
+                        src={
+                          (
+                            userData.questionnaireAnswers
+                              .heroImageUpload as FileUpload
+                          ).url || "/placeholder.svg"
+                        }
+                        alt="Hero Image"
+                        width={96}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-gray-800">
