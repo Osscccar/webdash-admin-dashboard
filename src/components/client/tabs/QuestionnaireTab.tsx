@@ -175,6 +175,10 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
           <FileText className="h-5 w-5 mr-2 text-blue-600" />
           Questionnaire Answers
         </h2>
+        <span>
+          Completed questionnaire:
+          {renderField(userData.completedQuestionnaire)}
+        </span>
       </div>
 
       <div className="space-y-6">
