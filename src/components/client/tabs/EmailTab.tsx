@@ -154,7 +154,7 @@ const emailTemplates = [
           <!-- Header -->
           <tr>
             <td style="padding: 30px 0; text-align: center; border-bottom: 1px solid #eaeaea;">
-              <img src="https://app.lumixdigital.com.au/image.png" alt="Lumix Digital" style="max-width: 140px; height: auto;">
+              <img src="https://app.lumixdigital.com.au/image3.png" alt="Lumix Digital" style="max-width: 140px; height: auto;">
             </td>
           </tr>
           
