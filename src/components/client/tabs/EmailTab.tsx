@@ -256,6 +256,15 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
   // Initialize editor content observer
   useEffect(() => {
     if (editorRef.current) {
+      // Set initial content if empty to ensure it's editable
+      if (!editorRef.current.innerHTML || editorRef.current.innerHTML === "") {
+        editorRef.current.innerHTML = "<p><br></p>";
+      }
+
+      // Focus the editor to make it active
+      editorRef.current.focus();
+
+      // Set up observer to track changes
       const observer = new MutationObserver(() => {
         if (editorRef.current) {
           setMessageHtml(editorRef.current.innerHTML);
@@ -563,7 +572,12 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
 
             <button
               type="button"
-              onClick={insertLink}
+              onClick={() => {
+                const url = window.prompt("Enter the URL:");
+                if (url) {
+                  document.execCommand("createLink", false, url);
+                }
+              }}
               className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
               title="Insert Link"
             >
