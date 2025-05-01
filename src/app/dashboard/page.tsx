@@ -98,6 +98,29 @@ export default function Dashboard() {
     }
   };
 
+  const getTimeRemaining = (completionDate?: string) => {
+    if (!completionDate) return null;
+
+    const completed = new Date(completionDate);
+    const deadline = new Date(completed);
+    deadline.setDate(deadline.getDate() + 5); // Add 5 days to completion date
+
+    const now = new Date();
+    const totalMs = deadline.getTime() - now.getTime();
+
+    // If time is up or not valid
+    if (totalMs <= 0) return null;
+
+    // Calculate days, hours, minutes
+    const days = Math.floor(totalMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (totalMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((totalMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    return { days, hours, minutes };
+  };
+
   const handleViewClientDetails = (userId: string) => {
     router.push(`/dashboard/client/${userId}`);
   };
@@ -675,6 +698,16 @@ export default function Dashboard() {
                           Questionnaire:{" "}
                           {formatDate(user.questionnaireCompletedAt, true)}
                         </span>
+                        <Clock className="h-5 w-5 text-amber-500 mr-3" />
+                        <span className="text-amber-600 text-sm font-medium">
+                          {(() => {
+                            const remaining = getTimeRemaining(
+                              user.questionnaireCompletedAt
+                            );
+                            if (!remaining) return "Time's up!";
+                            return `${remaining.days}d ${remaining.hours}h ${remaining.minutes}m remaining`;
+                          })()}
+                        </span>
                       </div>
                     )}
                 </div>
@@ -693,7 +726,7 @@ export default function Dashboard() {
                     onClick={() =>
                       toggleFulfilled(user.id || "", !!user.fulfilled)
                     }
-                    className={`flex items-center text-sm px-2 py-1 rounded ${
+                    className={`flex items-center text-sm px-2 py-1 rounded cursor-pointer ${
                       user.fulfilled
                         ? "bg-green-100 text-green-800 hover:bg-green-200"
                         : "bg-blue-100 text-blue-800 hover:bg-blue-200"
