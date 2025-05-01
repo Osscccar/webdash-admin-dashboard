@@ -1,0 +1,196 @@
+// src/app/api/send-client-email/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import mailgun from "mailgun-js";
+import * as fs from "fs";
+import { mkdir, stat } from "fs/promises";
+import path from "path";
+import os from "os";
+
+// Initialize Mailgun client
+const mg = mailgun({
+  apiKey: process.env.MAILGUN_API_KEY || "",
+  domain: process.env.MAILGUN_DOMAIN || "",
+});
+
+// Sender email for all emails
+const senderEmail =
+  process.env.MAILGUN_FROM_EMAIL || "noreply@lumixdigital.com.au";
+
+// FormidableFile type definition
+interface FormidableFile {
+  filepath: string;
+  originalFilename?: string;
+  mimetype?: string;
+  size: number;
+}
+
+type FormidableFiles = {
+  [key: string]: FormidableFile | FormidableFile[];
+};
+
+type FormidableFields = {
+  [key: string]: string | string[];
+};
+
+// Parse form data function
+async function parseForm(
+  request: NextRequest
+): Promise<{ fields: FormidableFields; files: FormidableFiles }> {
+  return new Promise(async (resolve, reject) => {
+    // Create uploads directory if it doesn't exist
+    const uploadDir = path.join(os.tmpdir(), "uploads");
+    try {
+      await stat(uploadDir);
+    } catch (e: any) {
+      if (e.code === "ENOENT") {
+        await mkdir(uploadDir, { recursive: true });
+      } else {
+        console.error("Error checking upload directory:", e);
+        reject(e);
+        return;
+      }
+    }
+
+    try {
+      const formData = await request.formData();
+      const fields: FormidableFields = {};
+      const files: FormidableFiles = {};
+
+      // Process all form data entries
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          // Handle file uploads
+          const tempFilePath = path.join(
+            uploadDir,
+            `${Date.now()}-${value.name}`
+          );
+
+          // Save the file
+          const buffer = Buffer.from(await value.arrayBuffer());
+          fs.writeFileSync(tempFilePath, buffer);
+
+          // Create a FormidableFile-like object
+          const formidableFile: FormidableFile = {
+            filepath: tempFilePath,
+            originalFilename: value.name,
+            size: value.size,
+            mimetype: value.type,
+          };
+
+          // Add to files object
+          if (files[key]) {
+            // If key already exists, convert to array
+            if (Array.isArray(files[key])) {
+              (files[key] as FormidableFile[]).push(formidableFile);
+            } else {
+              files[key] = [files[key] as FormidableFile, formidableFile];
+            }
+          } else {
+            files[key] = formidableFile;
+          }
+        } else {
+          // Handle regular form fields
+          if (fields[key]) {
+            if (Array.isArray(fields[key])) {
+              (fields[key] as string[]).push(value.toString());
+            } else {
+              fields[key] = [fields[key] as string, value.toString()];
+            }
+          } else {
+            fields[key] = value.toString();
+          }
+        }
+      }
+
+      resolve({ fields, files });
+    } catch (error) {
+      console.error("Error parsing form data:", error);
+      reject(error);
+    }
+  });
+}
+
+// POST handler for the API route
+export async function POST(request: NextRequest) {
+  try {
+    // Parse the form data
+    const { fields, files } = await parseForm(request);
+
+    // Extract data from fields
+    const clientId = fields.clientId as string;
+    const subject = fields.subject as string;
+    const content = fields.content as string;
+
+    // Get the client email
+    // First try to get it from the form directly
+    let clientEmail = "";
+
+    if (fields.clientEmail) {
+      clientEmail = fields.clientEmail as string;
+    } else {
+      // This assumes you're passing the client info in the frontend
+      // If email is missing, return an error
+      return NextResponse.json(
+        { success: false, message: "No recipient email provided" },
+        { status: 400 }
+      );
+    }
+
+    // Create message data
+    const mailgunData: any = {
+      from: `"Lumix Digital" <${senderEmail}>`,
+      to: clientEmail,
+      subject: subject,
+      html: content,
+    };
+
+    // Handle attachments if any
+    if (files.attachments) {
+      const attachmentFiles = Array.isArray(files.attachments)
+        ? files.attachments
+        : [files.attachments];
+
+      if (attachmentFiles.length > 0) {
+        // Create proper Mailgun attachment format by reading the files
+        const mailgunAttachments = attachmentFiles.map((file) => ({
+          filename: file.originalFilename,
+          contentType: file.mimetype,
+          data: fs.readFileSync(file.filepath),
+        }));
+
+        // Add to data object
+        mailgunData.attachment = mailgunAttachments;
+      }
+    }
+
+    const response = await mg.messages().send(mailgunData);
+    console.log("Email sent successfully:", response);
+
+    // Clean up temporary files
+    if (files.attachments) {
+      const attachmentFiles = Array.isArray(files.attachments)
+        ? files.attachments
+        : [files.attachments];
+
+      for (const file of attachmentFiles) {
+        try {
+          fs.unlinkSync(file.filepath);
+        } catch (error) {
+          console.error("Error deleting temporary file:", error);
+        }
+      }
+    }
+
+    // Return success response
+    return NextResponse.json({
+      success: true,
+      message: "Email sent successfully",
+    });
+  } catch (error) {
+    console.error("Error in email API:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to send email" },
+      { status: 500 }
+    );
+  }
+}
