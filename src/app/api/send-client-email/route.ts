@@ -121,49 +121,58 @@ export async function POST(request: NextRequest) {
     const subject = fields.subject as string;
     const content = fields.content as string;
 
-    // Get the client email
-    // First try to get it from the form directly
-    let clientEmail = "";
+    // Get client email from form data
+    const clientEmail = fields.clientEmail as string;
 
-    if (fields.clientEmail) {
-      clientEmail = fields.clientEmail as string;
-    } else {
-      // This assumes you're passing the client info in the frontend
-      // If email is missing, return an error
+    if (!clientEmail) {
       return NextResponse.json(
-        { success: false, message: "No recipient email provided" },
+        { success: false, message: "Client email is required" },
         { status: 400 }
       );
     }
 
-    // Create message data
-    const mailgunData: any = {
+    // Configure mail attachment format expected by Mailgun
+    interface MailgunAttachment {
+      filename?: string;
+      contentType?: string;
+      data: Buffer;
+    }
+
+    // Prepare email attachments
+    const attachments: MailgunAttachment[] = [];
+
+    if (files.attachments) {
+      const attachmentFiles = Array.isArray(files.attachments)
+        ? files.attachments
+        : [files.attachments];
+
+      for (const file of attachmentFiles) {
+        // Read file content as buffer
+        const fileContent = fs.readFileSync(file.filepath);
+
+        attachments.push({
+          filename: file.originalFilename,
+          contentType: file.mimetype,
+          data: fileContent,
+        });
+      }
+    }
+
+    // Prepare email data
+    const emailData: any = {
       from: `"Lumix Digital" <${senderEmail}>`,
       to: clientEmail,
       subject: subject,
       html: content,
     };
 
-    // Handle attachments if any
-    if (files.attachments) {
-      const attachmentFiles = Array.isArray(files.attachments)
-        ? files.attachments
-        : [files.attachments];
-
-      if (attachmentFiles.length > 0) {
-        // Create proper Mailgun attachment format by reading the files
-        const mailgunAttachments = attachmentFiles.map((file) => ({
-          filename: file.originalFilename,
-          contentType: file.mimetype,
-          data: fs.readFileSync(file.filepath),
-        }));
-
-        // Add to data object
-        mailgunData.attachment = mailgunAttachments;
-      }
+    // Only add attachments if there are any
+    if (attachments.length > 0) {
+      emailData.attachment = attachments;
     }
 
-    const response = await mg.messages().send(mailgunData);
+    // Send the email
+    const response = await mg.messages().send(emailData);
     console.log("Email sent successfully:", response);
 
     // Clean up temporary files
@@ -181,13 +190,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Return success response
     return NextResponse.json({
       success: true,
       message: "Email sent successfully",
     });
   } catch (error) {
     console.error("Error in email API:", error);
+
     return NextResponse.json(
       { success: false, message: "Failed to send email" },
       { status: 500 }

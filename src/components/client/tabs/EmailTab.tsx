@@ -1,10 +1,11 @@
+// src/components/client/tabs/EmailTab.tsx
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Send, Image, FileText, Paperclip, X, ChevronDown } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Send, FileText, Paperclip, X, ChevronDown } from "lucide-react";
 import { UserData } from "@/types";
 
-// Email templates
+// Email templates remain the same as in your existing code
 const emailTemplates = [
   {
     id: "standard",
@@ -196,29 +197,6 @@ const emailTemplates = [
   },
 ];
 
-// Simple toolbar options for our editor
-const ToolbarButton: React.FC<{
-  command: string;
-  icon: React.ReactNode;
-  title: string;
-  value?: string;
-}> = ({ command, icon, title, value }) => {
-  const handleClick = () => {
-    document.execCommand(command, false, value);
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
-      title={title}
-    >
-      {icon}
-    </button>
-  );
-};
-
 interface EmailTabProps {
   clients: UserData[];
   currentClient?: UserData;
@@ -232,7 +210,10 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
 
   // State for email subject and content
   const [subject, setSubject] = useState<string>("");
-  const [messageHtml, setMessageHtml] = useState<string>("");
+  const [messageText, setMessageText] = useState<string>("");
+
+  // Track which template is applied
+  const [appliedTemplate, setAppliedTemplate] = useState<string | null>(null);
 
   // State for managing file attachments
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -251,64 +232,28 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
 
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Initialize editor content observer
-  useEffect(() => {
-    if (editorRef.current) {
-      // Set initial content if empty to ensure it's editable
-      if (!editorRef.current.innerHTML || editorRef.current.innerHTML === "") {
-        editorRef.current.innerHTML = "<p><br></p>";
-      }
-
-      // Focus the editor to make it active
-      editorRef.current.focus();
-
-      // Set up observer to track changes
-      const observer = new MutationObserver(() => {
-        if (editorRef.current) {
-          setMessageHtml(editorRef.current.innerHTML);
-        }
-      });
-
-      observer.observe(editorRef.current, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
-
-      return () => observer.disconnect();
-    }
-  }, []);
-
-  // Apply a template to the editor
+  // Apply a template
   const applyTemplate = (templateId: string) => {
     const template = emailTemplates.find((t) => t.id === templateId);
     if (!template) return;
 
     setSubject(template.subject);
+    setAppliedTemplate(templateId);
 
-    // Extract the editable body
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = template.content;
-
-    // Replace placeholders
-    const clientNamePlaceholder = currentClient
-      ? `${currentClient.firstName || ""} ${
-          currentClient.lastName || ""
+    // Get selected client name if available
+    const selectedClientData = clients.find(
+      (client) => client.id === selectedClient
+    );
+    const clientName = selectedClientData
+      ? `${selectedClientData.firstName || ""} ${
+          selectedClientData.lastName || ""
         }`.trim() || "there"
-      : "[CLIENT_NAME]";
+      : "there";
 
-    // Set editor content with client name filled in
-    let editableContent = template.content
-      .replace(/\[CLIENT_NAME\]/g, clientNamePlaceholder)
-      .replace(/\[SUBJECT_LINE\]/g, template.subject);
-
-    // Set the HTML content
-    if (editorRef.current) {
-      editorRef.current.innerHTML = "[YOUR_MESSAGE_HERE]"; // Just set the editable part
-      setMessageHtml(editableContent);
-    }
+    // Set default message text for editing
+    setMessageText("Your message here");
 
     setShowTemplates(false);
   };
@@ -326,14 +271,48 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
-  // Helper function to apply formatting
-  const applyFormatting = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
+  // Get client data
+  const getClientById = (id: string) => {
+    return clients.find((client) => client.id === id);
+  };
 
-    // Focus back on the editor
-    if (editorRef.current) {
-      editorRef.current.focus();
+  // Get selected client data
+  const selectedClientData = getClientById(selectedClient);
+
+  // Get the email address of the selected client
+  const getSelectedClientEmail = () => {
+    if (!selectedClient) return "";
+    const client = getClientById(selectedClient);
+    return client?.email || "";
+  };
+
+  // Generate the final HTML content to send
+  const generateEmailContent = () => {
+    if (!appliedTemplate) {
+      // If no template is applied, just return the plain text
+      return `<div style="font-family: Arial, sans-serif; color: #333333;">${messageText.replace(
+        /\n/g,
+        "<br>"
+      )}</div>`;
     }
+
+    const template = emailTemplates.find((t) => t.id === appliedTemplate);
+    if (!template) return messageText;
+
+    // Get client name
+    const clientName = selectedClientData
+      ? `${selectedClientData.firstName || ""} ${
+          selectedClientData.lastName || ""
+        }`.trim() || "there"
+      : "there";
+
+    // Replace placeholders in the template
+    let emailContent = template.content
+      .replace(/\[CLIENT_NAME\]/g, clientName)
+      .replace(/\[SUBJECT_LINE\]/g, subject)
+      .replace(/\[YOUR_MESSAGE_HERE\]/g, messageText.replace(/\n/g, "<br>"));
+
+    return emailContent;
   };
 
   // Send the email
@@ -348,7 +327,7 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
       return;
     }
 
-    if (!messageHtml || messageHtml === "<p></p>" || messageHtml === "<br>") {
+    if (!messageText) {
       setFeedback({
         message: "Please add content to your email",
         type: "error",
@@ -363,7 +342,8 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
       const formData = new FormData();
       formData.append("clientId", selectedClient);
       formData.append("subject", subject);
-      formData.append("content", messageHtml);
+      formData.append("content", generateEmailContent());
+      formData.append("clientEmail", getSelectedClientEmail());
 
       // Add each attachment
       attachments.forEach((file) => {
@@ -381,10 +361,8 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
       if (data.success) {
         setFeedback({ message: "Email sent successfully!", type: "success" });
         // Reset the form
-        setMessageHtml("");
-        if (editorRef.current) {
-          editorRef.current.innerHTML = "";
-        }
+        setMessageText("");
+        setAppliedTemplate(null);
         setSubject("");
         setAttachments([]);
       } else {
@@ -408,22 +386,6 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
       }, 5000);
     }
   };
-
-  const insertLink = () => {
-    const url = prompt("Enter the URL:");
-    if (url) {
-      // Only proceed if the user entered a URL
-      document.execCommand("createLink", false, url);
-    }
-  };
-
-  // Get client data by ID
-  const getClientById = (id: string) => {
-    return clients.find((client) => client.id === id);
-  };
-
-  // Get selected client data
-  const selectedClientData = getClientById(selectedClient);
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
@@ -467,7 +429,10 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
                 className="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center"
                 onClick={() => setShowTemplates(!showTemplates)}
               >
-                Select Template
+                {appliedTemplate
+                  ? emailTemplates.find((t) => t.id === appliedTemplate)
+                      ?.name || "Select Template"
+                  : "Select Template"}
                 <ChevronDown className="ml-2 h-4 w-4" />
               </button>
 
@@ -503,120 +468,28 @@ const EmailTab: React.FC<EmailTabProps> = ({ clients, currentClient }) => {
           />
         </div>
 
-        {/* Simple Text Editor */}
+        {/* Simple Text Area */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Message:
           </label>
 
-          {/* Text Editor Toolbar */}
-          <div className="border border-gray-300 border-b-0 rounded-t-md bg-gray-50 p-2 flex flex-wrap gap-1">
-            <ToolbarButton
-              command="bold"
-              icon={<strong>B</strong>}
-              title="Bold"
-            />
-            <ToolbarButton command="italic" icon={<em>I</em>} title="Italic" />
-            <ToolbarButton
-              command="underline"
-              icon={<u>U</u>}
-              title="Underline"
-            />
-            <ToolbarButton
-              command="strikeThrough"
-              icon={<span className="line-through">S</span>}
-              title="Strikethrough"
-            />
-
-            <div className="border-l border-gray-300 mx-2 h-6"></div>
-
-            <ToolbarButton
-              command="formatBlock"
-              value="h1"
-              icon={<span className="font-bold">H1</span>}
-              title="Heading 1"
-            />
-            <ToolbarButton
-              command="formatBlock"
-              value="h2"
-              icon={<span className="font-bold">H2</span>}
-              title="Heading 2"
-            />
-            <ToolbarButton
-              command="formatBlock"
-              value="h3"
-              icon={<span className="font-bold">H3</span>}
-              title="Heading 3"
-            />
-            <ToolbarButton
-              command="formatBlock"
-              value="p"
-              icon={<span>¶</span>}
-              title="Paragraph"
-            />
-
-            <div className="border-l border-gray-300 mx-2 h-6"></div>
-
-            <ToolbarButton
-              command="insertUnorderedList"
-              icon={<span>• List</span>}
-              title="Bullet List"
-            />
-            <ToolbarButton
-              command="insertOrderedList"
-              icon={<span>1. List</span>}
-              title="Numbered List"
-            />
-
-            <div className="border-l border-gray-300 mx-2 h-6"></div>
-
-            <button
-              type="button"
-              onClick={() => {
-                const url = window.prompt("Enter the URL:");
-                if (url) {
-                  document.execCommand("createLink", false, url);
-                }
-              }}
-              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
-              title="Insert Link"
-            >
-              <span>🔗</span>
-            </button>
-            <ToolbarButton
-              command="foreColor"
-              value="#F58327"
-              icon={<span style={{ color: "#F58327" }}>A</span>}
-              title="Orange Text"
-            />
-            <ToolbarButton
-              command="foreColor"
-              value="#2563EB"
-              icon={<span style={{ color: "#2563EB" }}>A</span>}
-              title="Blue Text"
-            />
-            <ToolbarButton
-              command="foreColor"
-              value="#000000"
-              icon={<span>A</span>}
-              title="Black Text"
+          <div className="border border-gray-300 rounded-md">
+            <textarea
+              ref={textareaRef}
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              className="w-full p-4 min-h-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
+              placeholder="Write your message here..."
             />
           </div>
 
-          {/* Editable Content Area */}
-          <div
-            ref={editorRef}
-            className="border border-gray-300 rounded-b-md p-4 min-h-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            contentEditable={true}
-            dangerouslySetInnerHTML={{ __html: "" }}
-            style={{
-              backgroundColor: "white",
-              color: "#333",
-              fontSize: "16px",
-              lineHeight: "1.6",
-            }}
-            onInput={() => setMessageHtml(editorRef.current?.innerHTML || "")}
-          />
+          {appliedTemplate && (
+            <div className="mt-2 text-sm text-gray-500">
+              Using {emailTemplates.find((t) => t.id === appliedTemplate)?.name}{" "}
+              template. Your message will be formatted accordingly.
+            </div>
+          )}
         </div>
 
         {/* Attachments */}
