@@ -16,6 +16,7 @@ import {
   Globe,
 } from "lucide-react";
 import type { ProjectPhase } from "@/types";
+import { sendProjectPhaseUpdateEmail } from "@/lib/email-service";
 
 interface ProjectPhasesTabProps {
   projectPhases: ProjectPhase[];

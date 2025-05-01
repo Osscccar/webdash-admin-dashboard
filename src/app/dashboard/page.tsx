@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import {
@@ -194,11 +200,45 @@ export default function Dashboard() {
 
   const toggleFulfilled = async (userId: string, currentValue: boolean) => {
     try {
+      // Check if we're marking as fulfilled (only send email when changing from false to true)
+      const markingAsFulfilled = !currentValue;
+
       // Update in Firestore
       const userRef = doc(db, "users", userId);
       await updateDoc(userRef, {
         fulfilled: !currentValue,
       });
+
+      // Get user data for email
+      if (markingAsFulfilled) {
+        // Get the user's detailed data
+        const userDoc = await getDoc(userRef);
+        const userData = userDoc.data() as UserData;
+
+        // Send fulfillment email if the user has a website URL
+        if (userData && userData.email && userData.websiteUrl) {
+          // Send email via API endpoint
+          const response = await fetch("/api/send-email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              type: "website-fulfilled",
+              email: userData.email,
+              firstName: userData.firstName || "there",
+              websiteUrl: userData.websiteUrl,
+            }),
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            console.log("Fulfillment email sent to", userData.email);
+          } else {
+            console.error("Failed to send fulfillment email:", data.message);
+          }
+        }
+      }
 
       // Update local state
       setUsers(

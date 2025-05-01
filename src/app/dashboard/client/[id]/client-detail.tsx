@@ -172,22 +172,61 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   };
 
   // Toggle task completion
-  const toggleTaskCompletion = (phaseIndex: number, taskIndex: number) => {
+  const toggleTaskCompletion = async (
+    phaseIndex: number,
+    taskIndex: number
+  ) => {
     const updatedPhases = [...projectPhases];
-    updatedPhases[phaseIndex].tasks[taskIndex].completed =
-      !updatedPhases[phaseIndex].tasks[taskIndex].completed;
+    const currentTask = updatedPhases[phaseIndex].tasks[taskIndex];
+    const newCompletionStatus = !currentTask.completed;
+
+    // Update the task completion status
+    currentTask.completed = newCompletionStatus;
 
     // Check if all tasks are completed, update phase status accordingly
     const allCompleted = updatedPhases[phaseIndex].tasks.every(
       (task) => task.completed
     );
+
     if (allCompleted) {
       updatedPhases[phaseIndex].status = "completed";
     } else if (updatedPhases[phaseIndex].status === "completed") {
       updatedPhases[phaseIndex].status = "active";
     }
 
+    // Update state
     setProjectPhases(updatedPhases);
+
+    // Only send notification email if a task was marked as completed (not when unmarked)
+    if (newCompletionStatus && userData?.email) {
+      try {
+        // Send email via API endpoint
+        const response = await fetch("/api/send-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: "phase-update",
+            email: userData.email,
+            firstName: userData.firstName || "there",
+            phaseName: updatedPhases[phaseIndex].name,
+            phaseStatus: updatedPhases[phaseIndex].status,
+            tasks: updatedPhases[phaseIndex].tasks,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          console.log(`Task completion email sent to ${userData.email}`);
+        } else {
+          console.error("Failed to send task completion email:", data.message);
+        }
+      } catch (error) {
+        console.error("Error sending task completion email:", error);
+        // Don't show error to user since this is a background operation
+      }
+    }
   };
 
   // Add new task to a phase
