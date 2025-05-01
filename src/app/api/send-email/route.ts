@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("Sending email to:", email);
     const response = await mg.messages().send(emailData);
     console.log("Email sent successfully:", response);
 
@@ -212,8 +213,6 @@ function generateWebsiteFulfilledEmail(firstName, websiteUrl) {
                 ${websiteUrl}
               </a>
             </div>
-            
-
             
             <p style="margin-bottom: 25px; line-height: 1.6; font-size: 16px;">
               Take some time to explore your new website and make sure everything looks good. Here are a few things you might want to check:
