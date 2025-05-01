@@ -13,7 +13,12 @@ const senderEmail =
   process.env.MAILGUN_FROM_EMAIL || "noreply@lumixdigital.com.au";
 
 export async function POST(request: NextRequest) {
+  console.log("API route triggered");
+
   try {
+    const requestBody = await request.json();
+    console.log("Request body received:", requestBody);
+
     const {
       type,
       email,
@@ -22,12 +27,31 @@ export async function POST(request: NextRequest) {
       phaseStatus,
       tasks,
       websiteUrl,
-    } = await request.json();
+    } = requestBody;
+
+    console.log("Parsed request data:", { type, email, firstName, websiteUrl });
+
+    // Validation
+    if (!type || !email) {
+      console.error("Missing required fields:", { type, email });
+      return NextResponse.json(
+        { success: false, message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
     let emailData;
 
     // Project phase update email
     if (type === "phase-update") {
+      if (!phaseName || !phaseStatus || !tasks) {
+        console.error("Missing phase update fields");
+        return NextResponse.json(
+          { success: false, message: "Missing phase update fields" },
+          { status: 400 }
+        );
+      }
+
       const completedTasks = tasks.filter((task) => task.completed).length;
       const totalTasks = tasks.length;
       const progressPercentage =
@@ -50,6 +74,14 @@ export async function POST(request: NextRequest) {
     }
     // Website fulfilled email
     else if (type === "website-fulfilled") {
+      if (!websiteUrl) {
+        console.error("Missing website URL for fulfilled email");
+        return NextResponse.json(
+          { success: false, message: "Missing website URL" },
+          { status: 400 }
+        );
+      }
+
       emailData = {
         from: senderEmail,
         to: email,
@@ -57,24 +89,46 @@ export async function POST(request: NextRequest) {
         html: generateWebsiteFulfilledEmail(firstName, websiteUrl),
       };
     } else {
+      console.error("Invalid email type:", type);
       return NextResponse.json(
         { success: false, message: "Invalid email type" },
         { status: 400 }
       );
     }
 
-    console.log("Sending email to:", email);
-    const response = await mg.messages().send(emailData);
-    console.log("Email sent successfully:", response);
-
-    return NextResponse.json({
-      success: true,
-      message: "Email sent successfully",
+    console.log("Preparing to send email to:", email);
+    console.log("Email data:", {
+      from: emailData.from,
+      to: emailData.to,
+      subject: emailData.subject,
     });
+
+    try {
+      const response = await mg.messages().send(emailData);
+      console.log("Email sent successfully, Mailgun response:", response);
+      return NextResponse.json({
+        success: true,
+        message: "Email sent successfully",
+      });
+    } catch (mailgunError) {
+      console.error("Mailgun error:", mailgunError);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Failed to send email through Mailgun",
+          error: mailgunError.message,
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("Error processing request:", error);
     return NextResponse.json(
-      { success: false, message: "Failed to send email" },
+      {
+        success: false,
+        message: "Failed to process request",
+        error: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

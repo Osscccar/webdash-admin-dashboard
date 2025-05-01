@@ -200,23 +200,38 @@ export default function Dashboard() {
 
   const toggleFulfilled = async (userId: string, currentValue: boolean) => {
     try {
-      // Check if we're marking as fulfilled (only send email when changing from false to true)
+      console.log("Starting toggle fulfilled process for user:", userId);
       const markingAsFulfilled = !currentValue;
+      console.log("Marking as fulfilled:", markingAsFulfilled);
 
       // Update in Firestore
       const userRef = doc(db, "users", userId);
       await updateDoc(userRef, {
         fulfilled: !currentValue,
       });
+      console.log("Database updated successfully");
 
       // Get user data for email
       if (markingAsFulfilled) {
+        console.log("Preparing to send fulfillment email");
         // Get the user's detailed data
         const userDoc = await getDoc(userRef);
         const userData = userDoc.data() as UserData;
+        console.log(
+          "User data retrieved:",
+          userData?.email,
+          !!userData?.websiteUrl
+        );
 
         // Send fulfillment email if the user has a website URL
         if (userData && userData.email && userData.websiteUrl) {
+          console.log("Sending email request with data:", {
+            type: "website-fulfilled",
+            email: userData.email,
+            firstName: userData.firstName || "there",
+            websiteUrl: userData.websiteUrl,
+          });
+
           // Send email via API endpoint
           const response = await fetch("/api/send-email", {
             method: "POST",
@@ -232,11 +247,12 @@ export default function Dashboard() {
           });
 
           const data = await response.json();
-          if (data.success) {
-            console.log("Fulfillment email sent to", userData.email);
-          } else {
-            console.error("Failed to send fulfillment email:", data.message);
-          }
+          console.log("Email API response:", data);
+        } else {
+          console.log("Missing required data for email:", {
+            hasEmail: !!userData?.email,
+            hasWebsiteUrl: !!userData?.websiteUrl,
+          });
         }
       }
 
