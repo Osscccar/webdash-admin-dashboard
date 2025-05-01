@@ -1,8 +1,7 @@
-/* eslint-disable */
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import {
@@ -25,6 +24,8 @@ import {
   Trash2,
   Edit,
   ExternalLink,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import type { UserData } from "@/types";
 
@@ -37,7 +38,7 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortField, setSortField] = useState<
-    "name" | "email" | "date" | "status"
+    "name" | "email" | "date" | "status" | "questionnaireDate"
   >("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -45,6 +46,9 @@ export default function Dashboard() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [planFilter, setPlanFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [activeTab, setActiveTab] = useState<
+    "clients" | "fulfilment" | "fulfilled"
+  >("clients");
   const [confirmDelete, setConfirmDelete] = useState<{
     show: boolean;
     userId: string | null;
@@ -98,7 +102,9 @@ export default function Dashboard() {
     router.push(`/dashboard/client/${userId}`);
   };
 
-  const toggleSort = (field: "name" | "email" | "date" | "status") => {
+  const toggleSort = (
+    field: "name" | "email" | "date" | "status" | "questionnaireDate"
+  ) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
@@ -163,43 +169,81 @@ export default function Dashboard() {
     setIsFilterOpen(false);
   };
 
-  const filteredUsers = users.filter((user) => {
-    const fullName = `${user.firstName ?? ""} ${
-      user.lastName ?? ""
-    }`.toLowerCase();
-    const email = (user.email ?? "").toLowerCase();
-    const query = searchQuery.toLowerCase();
+  const toggleFulfilled = async (userId: string, currentValue: boolean) => {
+    try {
+      // Update in Firestore
+      const userRef = doc(db, "users", userId);
+      await updateDoc(userRef, {
+        fulfilled: !currentValue,
+      });
 
-    const matchesSearch = fullName.includes(query) || email.includes(query);
-    const matchesStatus = statusFilter
-      ? user.subscriptionStatus === statusFilter
-      : true;
-    const matchesPlan = planFilter ? user.planType === planFilter : true;
-
-    let matchesDate = true;
-    if (dateFilter) {
-      const today = new Date();
-      const userDate = user.createdAt ? new Date(user.createdAt) : null;
-
-      if (userDate) {
-        if (dateFilter === "today") {
-          matchesDate = userDate.toDateString() === today.toDateString();
-        } else if (dateFilter === "week") {
-          const weekAgo = new Date(today);
-          weekAgo.setDate(today.getDate() - 7);
-          matchesDate = userDate >= weekAgo;
-        } else if (dateFilter === "month") {
-          const monthAgo = new Date(today);
-          monthAgo.setMonth(today.getMonth() - 1);
-          matchesDate = userDate >= monthAgo;
-        }
-      } else {
-        matchesDate = false;
-      }
+      // Update local state
+      setUsers(
+        users.map((user) =>
+          user.id === userId ? { ...user, fulfilled: !currentValue } : user
+        )
+      );
+    } catch (err) {
+      console.error("Error updating fulfilled status:", err);
+      setError("Failed to update client status");
     }
+  };
 
-    return matchesSearch && matchesStatus && matchesPlan && matchesDate;
-  });
+  // Filter users based on the active tab and search/filter criteria
+  const getFilteredUsers = () => {
+    return users.filter((user) => {
+      // Basic filters (search, status, plan, date)
+      const fullName = `${user.firstName ?? ""} ${
+        user.lastName ?? ""
+      }`.toLowerCase();
+      const email = (user.email ?? "").toLowerCase();
+      const query = searchQuery.toLowerCase();
+
+      const matchesSearch = fullName.includes(query) || email.includes(query);
+      const matchesStatus = statusFilter
+        ? user.subscriptionStatus === statusFilter
+        : true;
+      const matchesPlan = planFilter ? user.planType === planFilter : true;
+
+      let matchesDate = true;
+      if (dateFilter) {
+        const today = new Date();
+        const userDate = user.createdAt ? new Date(user.createdAt) : null;
+
+        if (userDate) {
+          if (dateFilter === "today") {
+            matchesDate = userDate.toDateString() === today.toDateString();
+          } else if (dateFilter === "week") {
+            const weekAgo = new Date(today);
+            weekAgo.setDate(today.getDate() - 7);
+            matchesDate = userDate >= weekAgo;
+          } else if (dateFilter === "month") {
+            const monthAgo = new Date(today);
+            monthAgo.setMonth(today.getMonth() - 1);
+            matchesDate = userDate >= monthAgo;
+          }
+        } else {
+          matchesDate = false;
+        }
+      }
+
+      const basicFilters =
+        matchesSearch && matchesStatus && matchesPlan && matchesDate;
+
+      // Tab-specific filters
+      if (activeTab === "clients") {
+        return basicFilters;
+      } else if (activeTab === "fulfilment") {
+        return basicFilters && user.questionnaireCompletedAt && !user.fulfilled;
+      } else if (activeTab === "fulfilled") {
+        return basicFilters && user.fulfilled === true;
+      }
+
+      return false;
+    });
+  };
+
+  const filteredUsers = getFilteredUsers();
 
   // Sort users
   const sortedUsers = [...filteredUsers].sort((a, b) => {
@@ -225,6 +269,14 @@ export default function Dashboard() {
       return sortDirection === "asc"
         ? statusA.localeCompare(statusB)
         : statusB.localeCompare(statusA);
+    } else if (sortField === "questionnaireDate") {
+      const dateA = a.questionnaireCompletedAt
+        ? new Date(a.questionnaireCompletedAt).getTime()
+        : 0;
+      const dateB = b.questionnaireCompletedAt
+        ? new Date(b.questionnaireCompletedAt).getTime()
+        : 0;
+      return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
     }
     return 0;
   });
@@ -273,9 +325,70 @@ export default function Dashboard() {
 
   return (
     <div className="bg-white text-gray-800 p-6 rounded-xl shadow-sm">
+      {/* Tab Navigation */}
+      <div className="mb-6 border-b border-gray-200">
+        <div className="flex space-x-6">
+          <button
+            onClick={() => {
+              setActiveTab("clients");
+              setSortField("date");
+              setSortDirection("desc");
+            }}
+            className={`py-3 px-1 relative ${
+              activeTab === "clients"
+                ? "text-blue-600 font-medium"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Clients
+            {activeTab === "clients" && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></span>
+            )}
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("fulfilment");
+              setSortField("questionnaireDate");
+              setSortDirection("asc");
+            }}
+            className={`py-3 px-1 relative ${
+              activeTab === "fulfilment"
+                ? "text-blue-600 font-medium"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Fulfilment
+            {activeTab === "fulfilment" && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></span>
+            )}
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("fulfilled");
+              setSortField("questionnaireDate");
+              setSortDirection("asc");
+            }}
+            className={`py-3 px-1 relative ${
+              activeTab === "fulfilled"
+                ? "text-blue-600 font-medium"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Fulfilled
+            {activeTab === "fulfilled" && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></span>
+            )}
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 className="text-2xl font-medium text-gray-800 mb-4 md:mb-0">
-          Clients
+          {activeTab === "clients"
+            ? "Clients"
+            : activeTab === "fulfilment"
+            ? "Clients Awaiting Fulfillment"
+            : "Fulfilled Clients"}
         </h2>
 
         <div className="flex items-center space-x-2">
@@ -301,17 +414,19 @@ export default function Dashboard() {
           >
             <List size={18} />
           </button>
-          <button
-            onClick={() => setIsSelectMode(!isSelectMode)}
-            className={`p-2 rounded-md ${
-              isSelectMode
-                ? "bg-blue-100 text-blue-600"
-                : "bg-white hover:bg-gray-100 text-gray-500"
-            } transition-colors duration-200 cursor-pointer ml-2`}
-            aria-label="Select mode"
-          >
-            <CheckCircle size={18} />
-          </button>
+          {activeTab === "clients" && (
+            <button
+              onClick={() => setIsSelectMode(!isSelectMode)}
+              className={`p-2 rounded-md ${
+                isSelectMode
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-white hover:bg-gray-100 text-gray-500"
+              } transition-colors duration-200 cursor-pointer ml-2`}
+              aria-label="Select mode"
+            >
+              <CheckCircle size={18} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -362,24 +477,26 @@ export default function Dashboard() {
           Advanced Filters
         </button>
 
-        {isSelectMode && selectedUsers.length > 0 && (
-          <div className="flex space-x-2">
-            <button
-              onClick={handleBulkDelete}
-              className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-colors duration-200 cursor-pointer flex items-center"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete ({selectedUsers.length})
-            </button>
-            <button
-              onClick={handleExportSelected}
-              className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-200 cursor-pointer flex items-center"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export ({selectedUsers.length})
-            </button>
-          </div>
-        )}
+        {activeTab === "clients" &&
+          isSelectMode &&
+          selectedUsers.length > 0 && (
+            <div className="flex space-x-2">
+              <button
+                onClick={handleBulkDelete}
+                className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-colors duration-200 cursor-pointer flex items-center"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete ({selectedUsers.length})
+              </button>
+              <button
+                onClick={handleExportSelected}
+                className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors duration-200 cursor-pointer flex items-center"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export ({selectedUsers.length})
+              </button>
+            </div>
+          )}
       </div>
 
       {/* Advanced Filters */}
@@ -440,7 +557,7 @@ export default function Dashboard() {
       )}
 
       {/* Selected count */}
-      {isSelectMode && (
+      {activeTab === "clients" && isSelectMode && (
         <div className="bg-blue-50 p-3 rounded-lg mb-6 border border-blue-200 flex justify-between items-center">
           <div className="flex items-center">
             <CheckCircle className="h-5 w-5 text-blue-600 mr-2" />
@@ -475,7 +592,7 @@ export default function Dashboard() {
               key={user.id}
               className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 relative"
             >
-              {isSelectMode && (
+              {activeTab === "clients" && isSelectMode && (
                 <div className="absolute top-3 left-3 z-10">
                   <div
                     onClick={() => toggleSelectUser(user.id || "")}
@@ -549,6 +666,17 @@ export default function Dashboard() {
                       Joined: {formatDate(user.createdAt)}
                     </span>
                   </div>
+
+                  {(activeTab === "fulfilment" || activeTab === "fulfilled") &&
+                    user.questionnaireCompletedAt && (
+                      <div className="flex">
+                        <CheckCircle className="h-5 w-5 text-gray-400 mr-3" />
+                        <span className="text-gray-600 text-sm">
+                          Questionnaire:{" "}
+                          {formatDate(user.questionnaireCompletedAt, true)}
+                        </span>
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -560,18 +688,20 @@ export default function Dashboard() {
                   <span>View Details</span>
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </button>
-                <div className="relative">
+                {(activeTab === "fulfilment" || activeTab === "fulfilled") && (
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Toggle dropdown menu
-                    }}
-                    className="text-gray-500 hover:text-gray-700 cursor-pointer p-1 rounded-full hover:bg-gray-100"
+                    onClick={() =>
+                      toggleFulfilled(user.id || "", !!user.fulfilled)
+                    }
+                    className={`flex items-center text-sm px-2 py-1 rounded ${
+                      user.fulfilled
+                        ? "bg-green-100 text-green-800 hover:bg-green-200"
+                        : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                    }`}
                   >
-                    <MoreHorizontal className="h-4 w-4" />
+                    {user.fulfilled ? "Mark Unfulfilled" : "Mark Fulfilled"}
                   </button>
-                  {/* Dropdown menu would go here */}
-                </div>
+                )}
               </div>
             </div>
           ))}
@@ -582,7 +712,7 @@ export default function Dashboard() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {isSelectMode && (
+                {activeTab === "clients" && isSelectMode && (
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -653,11 +783,16 @@ export default function Dashboard() {
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => toggleSort("date")}
+                  onClick={() =>
+                    toggleSort(
+                      activeTab === "clients" ? "date" : "questionnaireDate"
+                    )
+                  }
                 >
                   <div className="flex items-center">
-                    Joined
-                    {sortField === "date" && (
+                    {activeTab === "clients" ? "Joined" : "Questionnaire Date"}
+                    {(sortField === "date" ||
+                      sortField === "questionnaireDate") && (
                       <ArrowUpDown
                         className={`h-4 w-4 ml-1 ${
                           sortDirection === "asc" ? "transform rotate-180" : ""
@@ -682,6 +817,14 @@ export default function Dashboard() {
                     )}
                   </div>
                 </th>
+                {(activeTab === "fulfilment" || activeTab === "fulfilled") && (
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Fulfilled
+                  </th>
+                )}
                 <th
                   scope="col"
                   className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -693,7 +836,7 @@ export default function Dashboard() {
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
-                  {isSelectMode && (
+                  {activeTab === "clients" && isSelectMode && (
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div
                         onClick={() => toggleSelectUser(user.id || "")}
@@ -739,7 +882,9 @@ export default function Dashboard() {
                     {user.planType || "No plan"} ({user.billingCycle || "N/A"})
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(user.createdAt)}
+                    {activeTab === "clients"
+                      ? formatDate(user.createdAt)
+                      : formatDate(user.questionnaireCompletedAt, true)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -756,6 +901,23 @@ export default function Dashboard() {
                         : "Unknown"}
                     </span>
                   </td>
+                  {(activeTab === "fulfilment" ||
+                    activeTab === "fulfilled") && (
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() =>
+                          toggleFulfilled(user.id || "", !!user.fulfilled)
+                        }
+                        className="flex items-center text-gray-700 hover:text-gray-900"
+                      >
+                        {user.fulfilled ? (
+                          <CheckSquare className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <Square className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </td>
+                  )}
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
                       <button
@@ -765,22 +927,26 @@ export default function Dashboard() {
                       >
                         <ExternalLink className="h-4 w-4" />
                       </button>
-                      <button
-                        onClick={() => {
-                          // Edit user logic
-                        }}
-                        className="text-gray-600 hover:text-gray-900 cursor-pointer"
-                        title="Edit client"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user.id || "")}
-                        className="text-red-600 hover:text-red-900 cursor-pointer"
-                        title="Delete client"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {activeTab === "clients" && (
+                        <>
+                          <button
+                            onClick={() => {
+                              // Edit user logic
+                            }}
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer"
+                            title="Edit client"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user.id || "")}
+                            className="text-red-600 hover:text-red-900 cursor-pointer"
+                            title="Delete client"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -793,27 +959,51 @@ export default function Dashboard() {
       {/* No Results */}
       {filteredUsers.length === 0 && (
         <div className="bg-white rounded-lg p-8 text-center mt-10 border border-gray-200">
-          <p className="text-gray-500">
-            No clients match your search or filters.
-          </p>
-          <button
-            onClick={clearFilters}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer"
-          >
-            Clear Filters
-          </button>
+          {activeTab === "fulfilment" ? (
+            <div>
+              <p className="text-gray-500 mb-2">
+                No clients are waiting for fulfillment.
+              </p>
+              <p className="text-gray-400 text-sm">
+                Clients who complete the questionnaire will appear here.
+              </p>
+            </div>
+          ) : activeTab === "fulfilled" ? (
+            <div>
+              <p className="text-gray-500 mb-2">
+                No clients have been marked as fulfilled.
+              </p>
+              <p className="text-gray-400 text-sm">
+                Clients you mark as fulfilled will appear here.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-gray-500">
+                No clients match your search or filters.
+              </p>
+              <button
+                onClick={clearFilters}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Add New Client Button */}
-      <div className="fixed bottom-6 right-6">
-        <button
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 cursor-pointer"
-          title="Add new client"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      </div>
+      {/* Add New Client Button - Only shown on Clients tab */}
+      {activeTab === "clients" && (
+        <div className="fixed bottom-6 right-6">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 cursor-pointer"
+            title="Add new client"
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        </div>
+      )}
 
       {/* Confirmation Dialog */}
       {confirmDelete.show && (

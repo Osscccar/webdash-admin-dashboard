@@ -176,7 +176,7 @@ export const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
           Questionnaire Answers
         </h2>
         <span>
-          Completed questionnaire:
+          Completed:{""}
           {renderField(userData.completedQuestionnaire)}
         </span>
       </div>
