@@ -24,7 +24,7 @@ const emailTemplates = [
           <!-- Header -->
           <tr>
             <td style="background-color: #000000; text-align: center; padding: 20px 0;">
-              <img src="https://app.lumixdigital.com.au/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
+              <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
             </td>
           </tr>
           
@@ -44,7 +44,7 @@ const emailTemplates = [
               </p>
               
               <div style="text-align: center; margin: 35px 0;">
-                <a href="https://app.lumixdigital.com.au/dashboard" 
+                <a href="https://app.webdash.io/dashboard" 
                   style="background-color: #F58327; color: white; padding: 14px 30px; text-decoration: none; border-radius: 30px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 2px 5px rgba(245, 131, 39, 0.3);">
                   View Dashboard
                 </a>
@@ -60,7 +60,7 @@ const emailTemplates = [
           <tr>
             <td style="background-color: #f2f2f2; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e5e5;">
               <p style="margin: 0; font-size: 14px; color: #777; margin-bottom: 10px;">© ${new Date().getFullYear()} Lumix Digital. All rights reserved.</p>
-              <p style="margin: 0; font-size: 14px; color: #777;">Looking for more information? Visit our <a href="https://lumixdigital.com.au" style="color: #F58327; text-decoration: none;">website</a>.</p>
+              <p style="margin: 0; font-size: 14px; color: #777;">Looking for more information? Visit our <a href="https://webdash.io" style="color: #F58327; text-decoration: none;">website</a>.</p>
             </td>
           </tr>
         </table>
@@ -85,7 +85,7 @@ const emailTemplates = [
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(to right, #000000, #333333); text-align: center; padding: 30px 0;">
-              <img src="https://app.lumixdigital.com.au/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
+              <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
             </td>
           </tr>
           
@@ -104,7 +104,7 @@ const emailTemplates = [
                     </p>
                     
                     <div style="text-align: left; margin: 35px 0;">
-                      <a href="https://app.lumixdigital.com.au/dashboard" 
+                      <a href="https://app.webdash.io/dashboard" 
                         style="background-color: #F58327; color: white; padding: 16px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">
                         Open Dashboard
                       </a>
@@ -121,11 +121,11 @@ const emailTemplates = [
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                   <td style="text-align: center;">
-                    <img src="https://app.lumixdigital.com.au/image.png" alt="Lumix Digital" style="max-width: 120px; height: auto; margin-bottom: 20px;">
+                    <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 120px; height: auto; margin-bottom: 20px;">
                     <p style="margin: 0; font-size: 14px; color: #aaa; margin-bottom: 10px;">© ${new Date().getFullYear()} Lumix Digital. All rights reserved.</p>
                     <p style="margin: 0; font-size: 14px; color: #aaa;">
-                      <a href="https://lumixdigital.com.au" style="color: #F58327; text-decoration: none;">Website</a> | 
-                      <a href="mailto:support@lumixdigital.com.au" style="color: #F58327; text-decoration: none;">Contact</a>
+                      <a href="https://webdash.io" style="color: #F58327; text-decoration: none;">Website</a> | 
+                      <a href="mailto:support@webdash.io" style="color: #F58327; text-decoration: none;">Contact</a>
                     </p>
                   </td>
                 </tr>
@@ -154,7 +154,7 @@ const emailTemplates = [
           <!-- Header -->
           <tr>
             <td style="padding: 30px 0; text-align: center; border-bottom: 1px solid #eaeaea;">
-              <img src="https://app.lumixdigital.com.au/image3.png" alt="Lumix Digital" style="max-width: 140px; height: auto;">
+              <img src="https://app.webdash.io/image3.png" alt="Lumix Digital" style="max-width: 140px; height: auto;">
             </td>
           </tr>
           
@@ -168,7 +168,7 @@ const emailTemplates = [
               </p>
               
               <div style="margin: 40px 0 30px 0;">
-                <a href="https://app.lumixdigital.com.au/dashboard" 
+                <a href="https://app.webdash.io/dashboard" 
                   style="color: #F58327; font-weight: bold; text-decoration: none; border-bottom: 2px solid #F58327; padding-bottom: 3px; font-size: 16px;">
                   Access your dashboard
                 </a>
@@ -186,7 +186,7 @@ const emailTemplates = [
             <td style="padding: 20px; text-align: center; border-top: 1px solid #eaeaea;">
               <p style="margin: 0; font-size: 12px; color: #999;">© ${new Date().getFullYear()} Lumix Digital</p>
               <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">
-                <a href="https://lumixdigital.com.au" style="color: #999; text-decoration: none;">lumixdigital.com.au</a>
+                <a href="https://webdash.io" style="color: #999; text-decoration: none;">webdash.io</a>
               </p>
             </td>
           </tr>

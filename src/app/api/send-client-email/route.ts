@@ -13,8 +13,7 @@ const mg = mailgun({
 });
 
 // Sender email for all emails
-const senderEmail =
-  process.env.MAILGUN_FROM_EMAIL || "noreply@lumixdigital.com.au";
+const senderEmail = process.env.MAILGUN_FROM_EMAIL || "noreply@webdash.io";
 
 // FormidableFile type definition
 interface FormidableFile {
