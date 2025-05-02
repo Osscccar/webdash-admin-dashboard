@@ -45,7 +45,7 @@ export default function DashboardLayout({
           <div className="flex items-center">
             <Image
               src={logo || "/placeholder.svg"}
-              alt="Lumix Logo"
+              alt="WebDash"
               className="w-30 h-12"
             />
           </div>

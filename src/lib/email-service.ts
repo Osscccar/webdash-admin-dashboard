@@ -42,7 +42,7 @@ export async function sendProjectPhaseUpdateEmail(
           <!-- Header -->
           <tr>
             <td style="background-color: #000000; text-align: center; padding: 20px 0;">
-              <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
+              <img src="https://app.webdash.io/image.png" alt="WebDash" style="max-width: 180px; height: auto;">
             </td>
           </tr>
           
@@ -99,7 +99,7 @@ export async function sendProjectPhaseUpdateEmail(
               </div>
               
               <div style="margin-top: 40px;">
-                <p style="line-height: 1.6; font-size: 16px;">Thanks,<br>The Lumix Digital Team</p>
+                <p style="line-height: 1.6; font-size: 16px;">Thanks,<br>The WebDash Team</p>
               </div>
             </td>
           </tr>
@@ -107,7 +107,7 @@ export async function sendProjectPhaseUpdateEmail(
           <!-- Footer -->
           <tr>
             <td style="background-color: #f2f2f2; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e5e5;">
-              <p style="margin: 0; font-size: 14px; color: #777; margin-bottom: 10px;">© ${new Date().getFullYear()} Lumix Digital. All rights reserved.</p>
+              <p style="margin: 0; font-size: 14px; color: #777; margin-bottom: 10px;">© ${new Date().getFullYear()} WebDash. All rights reserved.</p>
               <p style="margin: 0; font-size: 14px; color: #777;">Looking for more information? Visit our <a href="https://webdash.io" style="color: #F58327; text-decoration: none;">website</a>.</p>
             </td>
           </tr>
@@ -154,7 +154,7 @@ export async function sendWebsiteFulfilledEmail(
           <!-- Header -->
           <tr>
             <td style="background-color: #000000; text-align: center; padding: 20px 0;">
-              <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
+              <img src="https://app.webdash.io/image.png" alt="WebDash" style="max-width: 180px; height: auto;">
             </td>
           </tr>
           
@@ -208,7 +208,7 @@ export async function sendWebsiteFulfilledEmail(
               </div>
               
               <div style="margin-top: 40px;">
-                <p style="line-height: 1.6; font-size: 16px;">Thanks for choosing Lumix Digital,<br>The Lumix Digital Team</p>
+                <p style="line-height: 1.6; font-size: 16px;">Thanks for choosing WebDash,<br>The WebDash Team</p>
               </div>
             </td>
           </tr>
@@ -216,7 +216,7 @@ export async function sendWebsiteFulfilledEmail(
           <!-- Footer -->
           <tr>
             <td style="background-color: #f2f2f2; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e5e5;">
-              <p style="margin: 0; font-size: 14px; color: #777; margin-bottom: 10px;">© ${new Date().getFullYear()} Lumix Digital. All rights reserved.</p>
+              <p style="margin: 0; font-size: 14px; color: #777; margin-bottom: 10px;">© ${new Date().getFullYear()} WebDash. All rights reserved.</p>
               <p style="margin: 0; font-size: 14px; color: #777;">Looking for more information? Visit our <a href="https://webdash.io" style="color: #F58327; text-decoration: none;">website</a>.</p>
             </td>
           </tr>

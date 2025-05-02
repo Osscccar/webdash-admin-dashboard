@@ -10,21 +10,21 @@ const emailTemplates = [
   {
     id: "standard",
     name: "Standard Template",
-    subject: "Update from Lumix Digital",
+    subject: "Update from WebDash",
     content: `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Lumix Digital</title>
+        <title>WebDash</title>
       </head>
       <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; background-color: #f9f9f9;">
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
           <!-- Header -->
           <tr>
             <td style="background-color: #000000; text-align: center; padding: 20px 0;">
-              <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
+              <img src="https://app.webdash.io/image.png" alt="WebDash" style="max-width: 180px; height: auto;">
             </td>
           </tr>
           
@@ -51,7 +51,7 @@ const emailTemplates = [
               </div>
               
               <div style="margin-top: 40px;">
-                <p style="line-height: 1.6; font-size: 16px;">Thanks,<br>The Lumix Digital Team</p>
+                <p style="line-height: 1.6; font-size: 16px;">Thanks,<br>The WebDash Team</p>
               </div>
             </td>
           </tr>
@@ -59,7 +59,7 @@ const emailTemplates = [
           <!-- Footer -->
           <tr>
             <td style="background-color: #f2f2f2; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e5e5;">
-              <p style="margin: 0; font-size: 14px; color: #777; margin-bottom: 10px;">© ${new Date().getFullYear()} Lumix Digital. All rights reserved.</p>
+              <p style="margin: 0; font-size: 14px; color: #777; margin-bottom: 10px;">© ${new Date().getFullYear()} WebDash. All rights reserved.</p>
               <p style="margin: 0; font-size: 14px; color: #777;">Looking for more information? Visit our <a href="https://webdash.io" style="color: #F58327; text-decoration: none;">website</a>.</p>
             </td>
           </tr>
@@ -71,21 +71,21 @@ const emailTemplates = [
   {
     id: "modern",
     name: "Modern Template",
-    subject: "News from Lumix Digital",
+    subject: "News from WebDash",
     content: `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Lumix Digital</title>
+        <title>WebDash</title>
       </head>
       <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; background-color: #f9f9f9;">
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(to right, #000000, #333333); text-align: center; padding: 30px 0;">
-              <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 180px; height: auto;">
+              <img src="https://app.webdash.io/image.png" alt="WebDash" style="max-width: 180px; height: auto;">
             </td>
           </tr>
           
@@ -121,8 +121,8 @@ const emailTemplates = [
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                   <td style="text-align: center;">
-                    <img src="https://app.webdash.io/image.png" alt="Lumix Digital" style="max-width: 120px; height: auto; margin-bottom: 20px;">
-                    <p style="margin: 0; font-size: 14px; color: #aaa; margin-bottom: 10px;">© ${new Date().getFullYear()} Lumix Digital. All rights reserved.</p>
+                    <img src="https://app.webdash.io/image.png" alt="WebDash" style="max-width: 120px; height: auto; margin-bottom: 20px;">
+                    <p style="margin: 0; font-size: 14px; color: #aaa; margin-bottom: 10px;">© ${new Date().getFullYear()} WebDash. All rights reserved.</p>
                     <p style="margin: 0; font-size: 14px; color: #aaa;">
                       <a href="https://webdash.io" style="color: #F58327; text-decoration: none;">Website</a> | 
                       <a href="mailto:support@webdash.io" style="color: #F58327; text-decoration: none;">Contact</a>
@@ -140,21 +140,21 @@ const emailTemplates = [
   {
     id: "minimal",
     name: "Minimal Template",
-    subject: "A message from Lumix Digital",
+    subject: "A message from WebDash",
     content: `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Lumix Digital</title>
+        <title>WebDash</title>
       </head>
       <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; background-color: #ffffff;">
         <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto;">
           <!-- Header -->
           <tr>
             <td style="padding: 30px 0; text-align: center; border-bottom: 1px solid #eaeaea;">
-              <img src="https://app.webdash.io/image3.png" alt="Lumix Digital" style="max-width: 140px; height: auto;">
+              <img src="https://app.webdash.io/image3.png" alt="WebDash" style="max-width: 140px; height: auto;">
             </td>
           </tr>
           
@@ -176,7 +176,7 @@ const emailTemplates = [
               
               <p style="line-height: 1.6; font-size: 16px; color: #555; margin-top: 40px;">
                 Best regards,<br>
-                Lumix Digital Team
+                WebDash
               </p>
             </td>
           </tr>
@@ -184,7 +184,7 @@ const emailTemplates = [
           <!-- Footer -->
           <tr>
             <td style="padding: 20px; text-align: center; border-top: 1px solid #eaeaea;">
-              <p style="margin: 0; font-size: 12px; color: #999;">© ${new Date().getFullYear()} Lumix Digital</p>
+              <p style="margin: 0; font-size: 12px; color: #999;">© ${new Date().getFullYear()} WebDash</p>
               <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">
                 <a href="https://webdash.io" style="color: #999; text-decoration: none;">webdash.io</a>
               </p>

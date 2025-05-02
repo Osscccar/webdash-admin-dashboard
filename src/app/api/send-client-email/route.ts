@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare email data
     const emailData: any = {
-      from: `"Lumix Digital" <${senderEmail}>`,
+      from: `"WebDash" <${senderEmail}>`,
       to: clientEmail,
       subject: subject,
       html: content,

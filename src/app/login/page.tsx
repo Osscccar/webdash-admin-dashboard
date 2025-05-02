@@ -37,7 +37,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <KeyRound className="h-8 w-8 text-orange-500" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Lumix Digital Admin</h1>
+          <h1 className="text-2xl font-bold text-white">WebDash Admin</h1>
           <p className="text-gray-400 mt-2">
             Enter your credentials to sign in
           </p>

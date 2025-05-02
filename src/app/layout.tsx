@@ -1,10 +1,10 @@
 // src/app/layout.tsx
-import { AuthProvider } from '@/contexts/AuthContext';
-import './globals.css';
+import { AuthProvider } from "@/contexts/AuthContext";
+import "./globals.css";
 
 export const metadata = {
-  title: 'Lumix Digital Admin Dashboard',
-  description: 'Admin dashboard for managing Lumix Digital clients',
+  title: "Webdash Admin Dashboard",
+  description: "Admin dashboard for managing Webdash clients",
 };
 
 export default function RootLayout({
@@ -15,9 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
