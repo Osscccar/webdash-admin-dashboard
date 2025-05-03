@@ -646,7 +646,7 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
 
           {/* Tab content */}
           <div className="bg-white rounded-xl shadow-md p-6">
-            {activeTab === "overview" && (
+            {activeTab === "overview" && hasAccess("admin") && (
               <OverviewTab
                 userData={userData}
                 projectPhases={projectPhases}

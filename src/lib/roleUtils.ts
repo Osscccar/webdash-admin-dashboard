@@ -61,7 +61,7 @@ export const hasRoleAccess = (
 
 // Map tabs to required roles
 export const defaultTabRoleMap = {
-  overview: ["admin", "designer"],
+  overview: ["admin"],
   domain: ["admin"],
   website: ["admin", "designer"],
   questionnaire: ["admin", "designer"],
