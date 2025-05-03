@@ -24,6 +24,9 @@ interface ClientSidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   exportClientData: () => void;
+  // Add new props for role-based access
+  tabRoleMap?: Record<string, string[]>;
+  hasAccess?: (role: string) => boolean;
 }
 
 export const ClientSidebar: React.FC<ClientSidebarProps> = ({
@@ -34,6 +37,9 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
   sidebarOpen,
   setSidebarOpen,
   exportClientData,
+  // Default values for new props
+  tabRoleMap = {},
+  hasAccess = () => true,
 }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,6 +59,29 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
+
+  // Check if the user has access to a specific tab
+  const hasTabAccess = (tab: string): boolean => {
+    // If no tabRoleMap is provided for this tab, assume everyone has access
+    if (!tabRoleMap[tab]) return true;
+
+    // Check if the user has any of the required roles for the tab
+    return tabRoleMap[tab].some((role) => hasAccess(role));
+  };
+
+  // Define all tabs
+  const allTabs = [
+    { tab: "overview", icon: Activity, label: "Overview" },
+    { tab: "domain", icon: Globe, label: "Domain" },
+    { tab: "website", icon: Code, label: "Website" },
+    { tab: "questionnaire", icon: FileText, label: "Questionnaire" },
+    { tab: "phases", icon: Layers, label: "Project Phases" },
+    { tab: "notes", icon: FileText, label: "Notes" },
+    { tab: "analytics", icon: BarChart2, label: "Analytics" },
+  ];
+
+  // Filter tabs based on user's role
+  const accessibleTabs = allTabs.filter(({ tab }) => hasTabAccess(tab));
 
   return (
     <div
@@ -144,19 +173,7 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
         >
           <nav>
             <ul className="space-y-2">
-              {[
-                { tab: "overview", icon: Activity, label: "Overview" },
-                { tab: "domain", icon: Globe, label: "Domain" },
-                { tab: "website", icon: Code, label: "Website" },
-                {
-                  tab: "questionnaire",
-                  icon: FileText,
-                  label: "Questionnaire",
-                },
-                { tab: "phases", icon: Layers, label: "Project Phases" },
-                { tab: "notes", icon: FileText, label: "Notes" },
-                { tab: "analytics", icon: BarChart2, label: "Analytics" },
-              ].map(({ tab, icon: Icon, label }) => (
+              {accessibleTabs.map(({ tab, icon: Icon, label }) => (
                 <li key={tab}>
                   <button
                     onClick={() => setActiveTab(tab as TabType)}
@@ -194,13 +211,15 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
                 <Download className="h-5 w-5 mr-3 text-blue-600" />
                 Export Data
               </button>
-              <button
-                onClick={() => setActiveTab("phases")}
-                className="flex items-center w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors duration-200"
-              >
-                <Edit className="h-5 w-5 mr-3 text-blue-600" />
-                Update Progress
-              </button>
+              {hasTabAccess("phases") && (
+                <button
+                  onClick={() => setActiveTab("phases")}
+                  className="flex items-center w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors duration-200"
+                >
+                  <Edit className="h-5 w-5 mr-3 text-blue-600" />
+                  Update Progress
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -213,13 +232,15 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
               >
                 <Download className="h-5 w-5 text-blue-600" />
               </button>
-              <button
-                onClick={() => setActiveTab("phases")}
-                className="p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200"
-                title="Update Progress"
-              >
-                <Edit className="h-5 w-5 text-blue-600" />
-              </button>
+              {hasTabAccess("phases") && (
+                <button
+                  onClick={() => setActiveTab("phases")}
+                  className="p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200"
+                  title="Update Progress"
+                >
+                  <Edit className="h-5 w-5 text-blue-600" />
+                </button>
+              )}
             </div>
           </div>
         )}

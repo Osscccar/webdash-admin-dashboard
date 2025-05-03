@@ -24,6 +24,9 @@ interface OverviewTabProps {
   domainInfo: { name: string; isCustom: boolean };
   setActiveTab: React.Dispatch<React.SetStateAction<TabType>>;
   exportClientData: () => void;
+  // Add new props for role-based access
+  tabRoleMap?: Record<string, string[]>;
+  hasAccess?: (role: string) => boolean;
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -33,7 +36,19 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   domainInfo,
   setActiveTab,
   exportClientData,
+  // Add new props with defaults
+  tabRoleMap = {},
+  hasAccess = () => true,
 }) => {
+  // Function to check if user has access to a tab
+  const hasTabAccess = (tab: string): boolean => {
+    // If no tabRoleMap is provided for this tab, assume everyone has access
+    if (!tabRoleMap[tab]) return true;
+
+    // Check if the user has any of the required roles for the tab
+    return tabRoleMap[tab].some((role) => hasAccess(role));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
@@ -49,13 +64,15 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             <Download className="h-4 w-4 mr-1.5 text-gray-500" />
             Export
           </button>
-          <button
-            onClick={() => setActiveTab("notes")}
-            className="flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-          >
-            <FileText className="h-4 w-4 mr-1.5 text-gray-500" />
-            Notes
-          </button>
+          {hasTabAccess("notes") && (
+            <button
+              onClick={() => setActiveTab("notes")}
+              className="flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+            >
+              <FileText className="h-4 w-4 mr-1.5 text-gray-500" />
+              Notes
+            </button>
+          )}
         </div>
       </div>
 
@@ -407,35 +424,41 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           ))}
 
-          <div className="flex justify-end">
-            <button
-              onClick={() => setActiveTab("phases")}
-              className="flex items-center text-blue-600 hover:text-blue-800 text-sm cursor-pointer"
-            >
-              <FileText className="h-4 w-4 mr-1" />
-              Manage Project Phases
-            </button>
-          </div>
+          {hasTabAccess("phases") && (
+            <div className="flex justify-end">
+              <button
+                onClick={() => setActiveTab("phases")}
+                className="flex items-center text-blue-600 hover:text-blue-800 text-sm cursor-pointer"
+              >
+                <FileText className="h-4 w-4 mr-1" />
+                Manage Project Phases
+              </button>
+            </div>
+          )}
         </div>
       </CollapsibleSection>
 
-      {/* Quick actions */}
+      {/* Quick actions - only show buttons for tabs the user has access to */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-        <button
-          onClick={() => setActiveTab("domain")}
-          className="bg-white hover:bg-gray-50 text-gray-800 p-4 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm transition-colors duration-200 cursor-pointer"
-        >
-          <Globe className="h-5 w-5 mr-3 text-blue-600" />
-          Manage Domain
-        </button>
+        {hasTabAccess("domain") && (
+          <button
+            onClick={() => setActiveTab("domain")}
+            className="bg-white hover:bg-gray-50 text-gray-800 p-4 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm transition-colors duration-200 cursor-pointer"
+          >
+            <Globe className="h-5 w-5 mr-3 text-blue-600" />
+            Manage Domain
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveTab("website")}
-          className="bg-white hover:bg-gray-50 text-gray-800 p-4 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm transition-colors duration-200 cursor-pointer"
-        >
-          <Code className="h-5 w-5 mr-3 text-blue-600" />
-          Manage Website
-        </button>
+        {hasTabAccess("website") && (
+          <button
+            onClick={() => setActiveTab("website")}
+            className="bg-white hover:bg-gray-50 text-gray-800 p-4 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm transition-colors duration-200 cursor-pointer"
+          >
+            <Code className="h-5 w-5 mr-3 text-blue-600" />
+            Manage Website
+          </button>
+        )}
       </div>
     </div>
   );

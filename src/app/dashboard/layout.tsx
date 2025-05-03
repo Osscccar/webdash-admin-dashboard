@@ -6,7 +6,7 @@ import type React from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import logo from "../../../public/logo.webp";
 
 import Image from "next/image";
@@ -16,7 +16,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, loading, logout } = useAuth();
+  const { isAuthenticated, loading, logout, currentUser } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

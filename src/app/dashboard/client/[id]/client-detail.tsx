@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { UserData, ProjectPhase, TabType } from "@/types";
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
 
 // Components
 import { ClientHeader } from "@/components/client/ClientHeader";
@@ -29,6 +30,7 @@ import { parseDomainValue } from "@/components/client/utils";
 export default function ClientDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { id } = params;
+  const { hasAccess, tabRoleMap, currentUser } = useAuth();
 
   const [userData, setUserData] = useState<UserData | null>(null);
   const [projectPhases, setProjectPhases] = useState<ProjectPhase[]>([]);
@@ -70,6 +72,25 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   const [isExporting, setIsExporting] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  // Check if the current user has access to the active tab
+  useEffect(() => {
+    if (!tabRoleMap || !activeTab) return;
+
+    // If the user doesn't have access to the active tab, set it to overview
+    const requiredRoles = tabRoleMap[activeTab];
+    if (!requiredRoles) return;
+
+    const userHasAccess = requiredRoles.some((role) => hasAccess(role));
+
+    if (!userHasAccess && currentUser) {
+      setActiveTab("overview");
+      showToast(
+        `You don't have permission to access the ${activeTab} tab`,
+        "warning"
+      );
+    }
+  }, [activeTab, currentUser, tabRoleMap, hasAccess]);
 
   // Fetch client data
   useEffect(() => {
@@ -325,6 +346,15 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
   ) => {
     if (!userData || !userData.questionnaireAnswers) return;
 
+    // Check if user has permission to update domain info
+    if (!hasAccess("admin")) {
+      showToast(
+        "You don't have permission to update domain information",
+        "error"
+      );
+      return;
+    }
+
     try {
       setSaving(true);
       setError("");
@@ -532,6 +562,9 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         exportClientData={exportClientData}
+        // Add these props for role-based access
+        tabRoleMap={tabRoleMap}
+        hasAccess={hasAccess}
       />
 
       {/* Main content area with header */}
@@ -621,10 +654,13 @@ export default function ClientDetail({ params }: { params: { id: string } }) {
                 domainInfo={domainInfo}
                 setActiveTab={setActiveTab}
                 exportClientData={exportClientData}
+                // Add these props for role-based access
+                tabRoleMap={tabRoleMap}
+                hasAccess={hasAccess}
               />
             )}
 
-            {activeTab === "domain" && (
+            {activeTab === "domain" && hasAccess("admin") && (
               <DomainTab
                 userData={userData}
                 domainInfo={domainInfo}
