@@ -30,7 +30,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
   currentUser: User | null;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   hasAccess: (requiredRole: string) => boolean;
   // Add tabRoleMap property to the interface
@@ -51,36 +51,6 @@ const tabRoleMap: Record<string, string[]> = {
   analytics: ["admin", "designer"],
 };
 
-// Parse users from environment variable
-const parseAdminUsers = (): Record<
-  string,
-  { password: string; role: string }
-> => {
-  const usersStr = process.env.NEXT_PUBLIC_ADMIN_USERS || "";
-  const users: Record<string, { password: string; role: string }> = {};
-
-  // If not using new format, fall back to old credentials
-  if (!usersStr) {
-    const validUsername = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
-    const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-    if (validUsername && validPassword) {
-      users[validUsername] = { password: validPassword, role: "admin" };
-    }
-    return users;
-  }
-
-  // Parse user:password:role format
-  const userEntries = usersStr.split(",");
-  userEntries.forEach((entry) => {
-    const [username, password, role] = entry.split(":");
-    if (username && password && role) {
-      users[username] = { password, role };
-    }
-  });
-
-  return users;
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -98,23 +68,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = (username: string, password: string): boolean => {
-    const users = parseAdminUsers();
+  const login = async (
+    username: string,
+    password: string
+  ): Promise<boolean> => {
+    try {
+      // Call the secure server-side API endpoint
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    // Check if the provided username exists and the password matches
-    if (users[username] && users[username].password === password) {
-      const user: User = {
-        username,
-        role: users[username].role,
-      };
+      const data = await response.json();
 
-      setIsAuthenticated(true);
-      setCurrentUser(user);
-      sessionStorage.setItem("admin-auth", "true");
-      sessionStorage.setItem("admin-user", JSON.stringify(user));
-      return true;
+      if (data.success && data.user) {
+        // Successfully authenticated
+        const user: User = data.user;
+
+        setIsAuthenticated(true);
+        setCurrentUser(user);
+        sessionStorage.setItem("admin-auth", "true");
+        sessionStorage.setItem("admin-user", JSON.stringify(user));
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Login error:", error);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {

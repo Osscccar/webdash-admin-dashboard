@@ -14,18 +14,24 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Attempt login
-    const success = login(username, password);
+    try {
+      // Updated to use the async login function
+      const success = await login(username, password);
 
-    if (success) {
-      router.push("/dashboard");
-    } else {
-      setError("Invalid credentials. Please try again.");
+      if (success) {
+        router.push("/dashboard");
+      } else {
+        setError("Invalid credentials. Please try again.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An error occurred during login. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
