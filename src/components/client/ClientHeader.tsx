@@ -136,31 +136,6 @@ export const ClientHeader: React.FC<ClientHeaderProps> = ({
               </div>
               <ChevronDown className="h-4 w-4 text-gray-500" />
             </button>
-
-            {isUserMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                <div className="p-3 border-b border-gray-200">
-                  <p className="text-sm font-medium text-gray-800">
-                    Admin User
-                  </p>
-                  <p className="text-xs text-gray-500">admin@example.com</p>
-                </div>
-                <div className="p-2">
-                  <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <Settings className="h-4 w-4 mr-2 text-gray-500" />
-                    Settings
-                  </button>
-                  <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <HelpCircle className="h-4 w-4 mr-2 text-gray-500" />
-                    Help & Support
-                  </button>
-                  <button className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Save button */}
