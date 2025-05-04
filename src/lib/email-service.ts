@@ -208,7 +208,7 @@ export async function sendWebsiteFulfilledEmail(
               </div>
               
               <div style="margin-top: 40px;">
-                <p style="line-height: 1.6; font-size: 16px;">Thanks for choosing WebDash,<br>The WebDash Team</p>
+                <p style="line-height: 1.6; font-size: 15px;">Thanks for choosing WebDash,<br>The WebDash Team</p>
               </div>
             </td>
           </tr>
